@@ -12,7 +12,52 @@ const stats = {
     particleCount: 0
 };
 
-// Configuration du joueur
+// --- DATA: LEVELS (Expert Creative) ---
+const levels = [
+    {
+        width: 1500,
+        platforms: [
+            { x: 0, y: 550, width: 1500, height: 50, type: 'ground' },
+            { x: 200, y: 450, width: 120, height: 20, type: 'platform' },
+            { x: 400, y: 380, width: 120, height: 20, type: 'platform' },
+            { x: 600, y: 300, width: 150, height: 20, type: 'platform' },
+            { x: 800, y: 220, width: 100, height: 20, type: 'platform' },
+            { x: 1000, y: 350, width: 120, height: 20, type: 'platform' },
+            { x: 1250, y: 450, width: 150, height: 20, type: 'platform' }
+        ],
+        enemies: [
+            { x: 400, y: 520, width: 30, height: 30, color: '#FF4444', vx: 2, range: 100, startX: 400 },
+            { x: 900, y: 520, width: 30, height: 30, color: '#FF4444', vx: 3, range: 200, startX: 900 }
+        ],
+        goal: { x: 1400, y: 470, width: 40, height: 80 }
+    },
+    {
+        width: 1800,
+        platforms: [
+            { x: 0, y: 550, width: 500, height: 50, type: 'ground' },
+            { x: 600, y: 550, width: 600, height: 50, type: 'ground' },
+            { x: 1300, y: 550, width: 500, height: 50, type: 'ground' },
+            { x: 100, y: 450, width: 100, height: 20, type: 'platform' },
+            { x: 300, y: 350, width: 100, height: 20, type: 'platform' },
+            { x: 500, y: 250, width: 100, height: 20, type: 'platform' },
+            { x: 750, y: 250, width: 150, height: 20, type: 'platform' },
+            { x: 1000, y: 350, width: 100, height: 20, type: 'platform' },
+            { x: 1200, y: 450, width: 100, height: 20, type: 'platform' },
+            { x: 1450, y: 350, width: 150, height: 20, type: 'platform' }
+        ],
+        enemies: [
+            { x: 200, y: 520, width: 30, height: 30, color: '#FF4444', vx: 2, range: 100, startX: 200 },
+            { x: 800, y: 520, width: 30, height: 30, color: '#FF4444', vx: 4, range: 150, startX: 800 },
+            { x: 1400, y: 520, width: 30, height: 30, color: '#FF4444', vx: 3, range: 100, startX: 1400 },
+            { x: 750, y: 220, width: 30, height: 30, color: '#FF4444', vx: 2, range: 50, startX: 750 }
+        ],
+        goal: { x: 1700, y: 470, width: 40, height: 80 }
+    }
+];
+
+let currentLevelIndex = 0;
+
+// --- GAME OBJECTS ---
 const player = {
     x: 50,
     y: 50,
@@ -27,17 +72,46 @@ const player = {
     grounded: false,
     jumpPressed: false,
     alive: true,
-    wins: 0
+    totalWins: 0
 };
 
-// Système de particules (Expert VFX + Optimization)
 const particles = [];
-const MAX_PARTICLES = 200; // Expert Profiler: Limit particles to prevent performance degradation
+const MAX_PARTICLES = 200;
+
+let currentLevel = null;
+let enemies = [];
+let platforms = [];
+const goal = { x: 0, y: 0, width: 0, height: 0, color: '#FF00FF', reached: false };
+const camera = { x: 0, y: 0 };
+
+function initLevel(index) {
+    currentLevelIndex = index % levels.length;
+    currentLevel = levels[currentLevelIndex];
+    
+    // Reset player position
+    player.x = 50;
+    player.y = 50;
+    player.vx = 0;
+    player.vy = 0;
+    player.alive = true;
+    
+    // Load level data
+    platforms = currentLevel.platforms;
+    goal.x = currentLevel.goal.x;
+    goal.y = currentLevel.goal.y;
+    goal.width = currentLevel.goal.width;
+    goal.height = currentLevel.goal.height;
+    goal.reached = false;
+    
+    // Deep copy enemies
+    enemies = currentLevel.enemies.map(en => ({ ...en }));
+}
+
+// --- SYSTEMS ---
 
 function createParticles(x, y, color, count) {
     const spaceLeft = MAX_PARTICLES - particles.length;
     const actualCount = Math.min(count, spaceLeft);
-    
     for (let i = 0; i < actualCount; i++) {
         particles.push({
             x: x,
@@ -51,12 +125,6 @@ function createParticles(x, y, color, count) {
     }
 }
 
-// Système d'ennemis
-let enemies = [
-    { x: 400, y: 520, width: 30, height: 30, color: '#FF4444', vx: 2, range: 100, startX: 400 },
-    { x: 900, y: 520, width: 30, height: 30, color: '#FF4444', vx: 3, range: 200, startX: 900 }
-];
-
 function updateEnemies() {
     for (let i = enemies.length - 1; i >= 0; i--) {
         const en = enemies[i];
@@ -65,7 +133,7 @@ function updateEnemies() {
             en.vx *= -1;
         }
 
-        if (player.alive &&
+        if (player.alive && !goal.reached &&
             player.x < en.x + en.width &&
             player.x + player.width > en.x &&
             player.y < en.y + en.height &&
@@ -86,31 +154,11 @@ function killPlayer() {
     player.alive = false;
     createParticles(player.x + player.width/2, player.y + player.height/2, player.color, 20);
     setTimeout(() => {
-        resetLevel();
-        player.alive = true;
+        initLevel(currentLevelIndex);
     }, 1000);
 }
 
-function resetLevel() {
-    player.x = 50;
-    player.y = 50;
-    player.vx = 0;
-    player.vy = 0;
-    enemies = [
-        { x: 400, y: 520, width: 30, height: 30, color: '#FF4444', vx: 2, range: 100, startX: 400 },
-        { x: 900, y: 520, width: 30, height: 30, color: '#FF4444', vx: 3, range: 200, startX: 900 }
-    ];
-}
-
-const goal = {
-    x: 1400,
-    y: 470,
-    width: 40,
-    height: 80,
-    color: '#FF00FF',
-    reached: false
-};
-
+// Environnement
 const gravity = 0.5;
 const friction = 0.8;
 const colors = {
@@ -120,24 +168,11 @@ const colors = {
     dust: '#FFF'
 };
 
-const levelWidth = 1500;
-const platforms = [
-    { x: 0, y: 550, width: levelWidth, height: 50, type: 'ground' },
-    { x: 200, y: 450, width: 120, height: 20, type: 'platform' },
-    { x: 400, y: 380, width: 120, height: 20, type: 'platform' },
-    { x: 600, y: 300, width: 150, height: 20, type: 'platform' },
-    { x: 800, y: 220, width: 100, height: 20, type: 'platform' },
-    { x: 1000, y: 350, width: 120, height: 20, type: 'platform' },
-    { x: 1250, y: 450, width: 150, height: 20, type: 'platform' }
-];
-
-const camera = { x: 0, y: 0 };
 const keys = {};
 window.addEventListener('keydown', e => keys[e.code] = true);
 window.addEventListener('keyup', e => keys[e.code] = false);
 
 function update() {
-    // Expert Profiler: Update FPS
     stats.frameCount++;
     const now = performance.now();
     if (now > stats.lastTime + 1000) {
@@ -154,8 +189,7 @@ function update() {
     if (goal.reached) {
         updateParticles();
         if (keys['Enter']) {
-            goal.reached = false;
-            resetLevel();
+            initLevel(currentLevelIndex + 1);
         }
         return;
     }
@@ -202,22 +236,28 @@ function update() {
         }
     }
 
+    // Victoire
     if (player.x < goal.x + goal.width &&
         player.x + player.width > goal.x &&
         player.y < goal.y + goal.height &&
         player.y + player.height > goal.y) {
         goal.reached = true;
-        player.wins++;
+        player.totalWins++;
         createParticles(goal.x + goal.width/2, goal.y + goal.height/2, '#FFFF00', 50);
     }
 
+    // Death by falling
+    if (player.y > canvas.height + 100) {
+        killPlayer();
+    }
+
     if (player.x < 0) player.x = 0;
-    if (player.x + player.width > levelWidth) player.x = levelWidth - player.width;
+    if (player.x + player.width > currentLevel.width) player.x = currentLevel.width - player.width;
     
     let targetCameraX = player.x - canvas.width / 2;
     camera.x += (targetCameraX - camera.x) * 0.1;
     if (camera.x < 0) camera.x = 0;
-    if (camera.x > levelWidth - canvas.width) camera.x = levelWidth - canvas.width;
+    if (camera.x > currentLevel.width - canvas.width) camera.x = currentLevel.width - canvas.width;
 
     updateEnemies();
     updateParticles();
@@ -242,6 +282,7 @@ function draw() {
     ctx.fillStyle = colors.sky;
     ctx.fillRect(Math.floor(camera.x), 0, canvas.width, canvas.height);
     
+    // Goal
     ctx.fillStyle = goal.color;
     ctx.fillRect(goal.x, goal.y, goal.width, goal.height);
     ctx.fillStyle = 'white';
@@ -290,20 +331,20 @@ function draw() {
         ctx.fillStyle = 'white';
         ctx.font = '48px Arial';
         ctx.textAlign = 'center';
-        ctx.fillText('VICTOIRE !', canvas.width/2, canvas.height/2);
+        ctx.fillText('NIVEAU COMPLÉTÉ !', canvas.width/2, canvas.height/2);
         ctx.font = '24px Arial';
-        ctx.fillText('Appuyez sur Entrée pour recommencer', canvas.width/2, canvas.height/2 + 60);
+        ctx.fillText('Appuyez sur Entrée pour le niveau suivant', canvas.width/2, canvas.height/2 + 60);
     }
 
-    // Expert Profiler: Debug UI
+    // Debug UI
     ctx.textAlign = 'left';
     ctx.fillStyle = 'rgba(0,0,0,0.5)';
-    ctx.fillRect(5, 5, 180, 80);
+    ctx.fillRect(5, 5, 200, 80);
     ctx.fillStyle = 'white';
     ctx.font = '14px monospace';
-    ctx.fillText(`FPS: ${stats.fps}`, 15, 25);
-    ctx.fillText(`Particles: ${stats.particleCount}/${MAX_PARTICLES}`, 15, 45);
-    ctx.fillText(`Victoires: ${player.wins}`, 15, 65);
+    ctx.fillText(`FPS: ${stats.fps} | Particles: ${stats.particleCount}`, 15, 25);
+    ctx.fillText(`Level: ${currentLevelIndex + 1}`, 15, 45);
+    ctx.fillText(`Total Wins: ${player.totalWins}`, 15, 65);
 }
 
 function loop() {
@@ -312,5 +353,7 @@ function loop() {
     requestAnimationFrame(loop);
 }
 
+// Start
+initLevel(0);
 loop();
-console.log("Optimisation et Profilage terminés.");
+console.log("Système de niveaux multiples initialisé.");

@@ -1,7 +1,8 @@
-# Rapport de Cycle - Expert Profiler
-- Tâche effectuée : Optimisation des performances et profilage.
-- Détails : 
-    - Implémentation d'un compteur de FPS et de particules en temps réel.
-    - Ajout d'une limite physique de particules (`MAX_PARTICLES = 200`) pour prévenir les fuites de performance lors de collisions multiples ou victoires successives.
-    - Intégration d'un panneau Debug discret en haut à gauche.
-- État final : Le projet est désormais techniquement stable et prêt pour une extension de contenu (niveaux supplémentaires, types d'ennemis variés).
+# Rapport de Cycle - Expert Engine & Creative
+- Tâches effectuées : Système de niveaux multiples et Design du Niveau 2.
+- Détails techniques :
+    - Refactorisation du code pour supporter un tableau de niveaux (`levels`).
+    - Implémentation de `initLevel(index)` pour charger dynamiquement les plateformes, ennemis et objectifs.
+    - Ajout d'une transition de victoire permettant de passer au niveau suivant via la touche "Entrée".
+    - Design du Niveau 2 : plus long (1800px), avec des trous dans le sol (mort par chute) et des ennemis plus rapides patrouillant sur des plateformes en hauteur.
+- Prochaine étape suggérée : Ajout de sons ou retours haptiques visuels (Expert VFX).
