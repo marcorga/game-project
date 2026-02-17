@@ -26,8 +26,52 @@ function initLevel(index) {
     goal.reached = false;
     enemies.length = 0; level.enemies.forEach(en => enemies.push({...en}));
     coins.length = 0; level.coins.forEach(c => coins.push({...c, width: 20, height: 20, collected: false}));
+    items.length = 0;
+    if (level.items) {
+        level.items.forEach(it => {
+            items.push({
+                x: it.x, y: it.y, width: 24, height: 24, type: it.type, collected: false, bob: 0
+            });
+        });
+    }
     levelTimer = level.timeLimit;
     lastTimerUpdate = performance.now();
+
+    // Re-init visual elements
+    clouds.length = 0;
+    for (let i = 0; i < 10; i++) {
+        clouds.push({
+            x: Math.random() * level.width,
+            y: Math.random() * (canvas.height / 2),
+            speed: 0.2 + Math.random() * 0.5,
+            size: 30 + Math.random() * 50
+        });
+    }
+
+    mountains.length = 0;
+    for (let i = 0; i < 5; i++) {
+        mountains.push({
+            x: i * 400,
+            width: 600 + Math.random() * 400,
+            height: 100 + Math.random() * 200,
+            color: `rgba(100, 130, 150, ${0.3 + Math.random() * 0.2})`
+        });
+    }
+
+    decorations.length = 0;
+    level.platforms.forEach(plat => {
+        const count = Math.floor(plat.width / 100);
+        for (let i = 0; i < count; i++) {
+            if (Math.random() > 0.4) {
+                decorations.push({
+                    x: plat.x + Math.random() * (plat.width - 20),
+                    y: plat.y,
+                    type: Math.random() > 0.5 ? 'tree' : 'bush',
+                    size: 20 + Math.random() * 20
+                });
+            }
+        }
+    });
 }
 
 function update() {
@@ -75,6 +119,7 @@ function update() {
 
     if (keys['Space'] && player.grounded && !player.jumpPressed) {
         player.vy = player.jumpStrength;
+        player.grounded = false;
         player.jumpPressed = true;
         sfx.jump();
     }
@@ -85,13 +130,39 @@ function update() {
     updatePhysics(player, levels[currentLevelIndex].platforms, wasGrounded);
     updateEnemies(player, enemies, particles, sfx, takeDamage, killPlayer);
     updateCoins(player, coins, createParticles, sfx);
+    updateItems();
     updateParticles();
+
+    // Update Clouds
+    for (const cloud of clouds) {
+        cloud.x -= cloud.speed;
+        if (cloud.x + cloud.size < 0) cloud.x = levels[currentLevelIndex].width;
+    }
 
     camera.x += (player.x - canvas.width / 2 - camera.x) * 0.1;
     if (camera.x < 0) camera.x = 0;
     if (camera.x > levels[currentLevelIndex].width - canvas.width) camera.x = levels[currentLevelIndex].width - canvas.width;
 
     if (player.y > canvas.height + 100) killPlayer();
+}
+
+function updateItems() {
+    for (let i = items.length - 1; i >= 0; i--) {
+        const item = items[i];
+        item.bob += 0.1;
+        if (!item.collected &&
+            player.x < item.x + item.width &&
+            player.x + player.width > item.x &&
+            player.y < item.y + item.height + Math.sin(item.bob) * 5 &&
+            player.y + player.height > item.y + Math.sin(item.bob) * 5) {
+            item.collected = true;
+            if (item.type === 'heart') {
+                player.hp = Math.min(player.hp + 1, player.maxHp);
+                createParticles(item.x + item.width/2, item.y + item.height/2, '#FF0000', 15);
+                sfx.hit();
+            }
+        }
+    }
 }
 
 function takeDamage() {
