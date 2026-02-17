@@ -1,9 +1,16 @@
-# Rapport de Cycle - Expert Engine & Creative
-- Tâches effectuées : Système de Collectables (Pièces) et Mise à jour de l'UI.
-- Détails techniques :
-    - Implémentation de l'objet `coins` avec détection de collision circulaire simplifiée.
-    - Ajout d'un système de score persistant (total des pièces récoltées).
-    - VFX : Génération de particules dorées et micro-shake lors de la collecte pour un meilleur feedback.
-    - UI : Panneau de statistiques amélioré incluant le compte de pièces du niveau et le total.
-    - Écran de victoire mis à jour avec le résumé des pièces récoltées.
-- Prochaine étape suggérée : QA - Équilibrage de la difficulté du Niveau 2.
+# Last Report - Squad Development Cycle
+**Date:** 2026-02-17 23:25 UTC
+**Agent:** L'Architecte (Coordinateur)
+
+## Tâches accomplies
+- **Variations Musicales :** Le moteur audio procédural gère désormais plusieurs gammes. Le jeu bascule entre une gamme majeure pentatonique (tonalité joyeuse) pour les niveaux pairs et une gamme mineure pentatonique (tonalité plus sombre/mystérieuse) pour les niveaux impairs.
+- **Moteur Audio :** Refactoring de `playMusicStep` pour utiliser l'objet `scales`.
+- **Mise à jour TODO :** Tâche validée. Ajout d'une option pour des percussions afin d'enrichir le rythme.
+
+## État du code
+- `main.js` : Introduction de l'objet `scales` et logique de sélection dynamique de la gamme.
+- `TODO.md` : Mis à jour.
+- Git : Commit effectué (`f836824`).
+
+## Prochaine étape suggérée
+- Implémentation d'un effet de vent sur le feuillage des arbres et buissons pour rendre les décors plus vivants.
