@@ -29,6 +29,9 @@ const levels = [
             { x: 400, y: 520, width: 30, height: 30, color: '#FF4444', vx: 2, range: 100, startX: 400 },
             { x: 900, y: 520, width: 30, height: 30, color: '#FF4444', vx: 3, range: 200, startX: 900 }
         ],
+        coins: [
+            { x: 250, y: 400 }, { x: 450, y: 330 }, { x: 650, y: 250 }, { x: 1050, y: 300 }
+        ],
         goal: { x: 1400, y: 470, width: 40, height: 80 }
     },
     {
@@ -51,6 +54,9 @@ const levels = [
             { x: 1400, y: 520, width: 30, height: 30, color: '#FF4444', vx: 3, range: 100, startX: 1400 },
             { x: 750, y: 220, width: 30, height: 30, color: '#FF4444', vx: 2, range: 50, startX: 750 }
         ],
+        coins: [
+            { x: 150, y: 400 }, { x: 350, y: 300 }, { x: 550, y: 200 }, { x: 825, y: 200 }, { x: 1500, y: 300 }
+        ],
         goal: { x: 1700, y: 470, width: 40, height: 80 }
     }
 ];
@@ -61,10 +67,10 @@ let currentLevelIndex = 0;
 function saveGame() {
     const saveData = {
         totalWins: player.totalWins,
-        currentLevel: currentLevelIndex
+        currentLevel: currentLevelIndex,
+        totalCoins: player.totalCoins
     };
     localStorage.setItem('platformer_save', JSON.stringify(saveData));
-    console.log("Jeu sauvegardé.");
 }
 
 function loadGame() {
@@ -73,7 +79,7 @@ function loadGame() {
         const data = JSON.parse(saved);
         player.totalWins = data.totalWins || 0;
         currentLevelIndex = data.currentLevel || 0;
-        console.log("Jeu chargé.");
+        player.totalCoins = data.totalCoins || 0;
     }
 }
 
@@ -93,7 +99,9 @@ const player = {
     jumpPressed: false,
     alive: true,
     totalWins: 0,
-    shakeTime: 0 // Expert VFX: Screen shake
+    totalCoins: 0,
+    levelCoins: 0,
+    shakeTime: 0
 };
 
 const particles = [];
@@ -102,6 +110,7 @@ const MAX_PARTICLES = 200;
 let currentLevel = null;
 let enemies = [];
 let platforms = [];
+let coins = [];
 const goal = { x: 0, y: 0, width: 0, height: 0, color: '#FF00FF', reached: false };
 const camera = { x: 0, y: 0 };
 
@@ -113,6 +122,7 @@ function initLevel(index) {
     player.vx = 0;
     player.vy = 0;
     player.alive = true;
+    player.levelCoins = 0;
     platforms = currentLevel.platforms;
     goal.x = currentLevel.goal.x;
     goal.y = currentLevel.goal.y;
@@ -120,6 +130,7 @@ function initLevel(index) {
     goal.height = currentLevel.goal.height;
     goal.reached = false;
     enemies = currentLevel.enemies.map(en => ({ ...en }));
+    coins = currentLevel.coins.map(c => ({ ...c, width: 20, height: 20, collected: false }));
     saveGame();
 }
 
@@ -141,6 +152,23 @@ function createParticles(x, y, color, count) {
     }
 }
 
+function updateCoins() {
+    for (const coin of coins) {
+        if (!coin.collected &&
+            player.x < coin.x + coin.width &&
+            player.x + player.width > coin.x &&
+            player.y < coin.y + coin.height &&
+            player.y + player.height > coin.y) {
+            
+            coin.collected = true;
+            player.levelCoins++;
+            player.totalCoins++;
+            createParticles(coin.x + coin.width/2, coin.y + coin.height/2, '#FFD700', 10);
+            player.shakeTime = 2;
+        }
+    }
+}
+
 function updateEnemies() {
     for (let i = enemies.length - 1; i >= 0; i--) {
         const en = enemies[i];
@@ -159,7 +187,7 @@ function updateEnemies() {
                 createParticles(en.x + en.width/2, en.y + en.height/2, en.color, 15);
                 enemies.splice(i, 1);
                 player.vy = player.jumpStrength * 0.8;
-                player.shakeTime = 5; // Expert VFX: Small shake on kill
+                player.shakeTime = 5;
             } else {
                 killPlayer();
             }
@@ -169,7 +197,7 @@ function updateEnemies() {
 
 function killPlayer() {
     player.alive = false;
-    player.shakeTime = 15; // Expert VFX: Heavy shake on death
+    player.shakeTime = 15;
     createParticles(player.x + player.width/2, player.y + player.height/2, player.color, 25);
     setTimeout(() => {
         initLevel(currentLevelIndex);
@@ -182,7 +210,8 @@ const colors = {
     ground: '#4a2c2a',
     grass: '#2d5a27',
     sky: '#87CEEB',
-    dust: '#FFF'
+    dust: '#FFF',
+    coin: '#FFD700'
 };
 
 const keys = {};
@@ -247,7 +276,7 @@ function update() {
                 player.grounded = true;
                 if (!wasGrounded) {
                     createParticles(player.x + player.width/2, player.y + player.height, colors.dust, 5);
-                    if (player.vy > 5) player.shakeTime = 3; // Expert VFX: Land shake
+                    if (player.vy > 5) player.shakeTime = 3;
                 }
             } else if (player.vy < 0 && (player.y - player.vy) >= (plat.y + plat.height)) {
                 player.y = plat.y + plat.height;
@@ -262,7 +291,7 @@ function update() {
         player.y + player.height > goal.y) {
         goal.reached = true;
         player.totalWins++;
-        player.shakeTime = 20; // Expert VFX: Victory shake
+        player.shakeTime = 20;
         createParticles(goal.x + goal.width/2, goal.y + goal.height/2, '#FFFF00', 50);
         saveGame();
     }
@@ -277,6 +306,7 @@ function update() {
     if (camera.x > currentLevel.width - canvas.width) camera.x = currentLevel.width - canvas.width;
 
     updateEnemies();
+    updateCoins();
     updateParticles();
 }
 
@@ -294,7 +324,6 @@ function updateParticles() {
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // Expert VFX: Screen Shake implementation
     let shakeX = 0;
     let shakeY = 0;
     if (player.shakeTime > 0) {
@@ -332,6 +361,18 @@ function draw() {
         ctx.fillRect(en.x, en.y, en.width, en.height);
     }
 
+    // Expert Creative: Draw Coins
+    for (const coin of coins) {
+        if (!coin.collected) {
+            ctx.fillStyle = colors.coin;
+            ctx.beginPath();
+            ctx.arc(coin.x + 10, coin.y + 10, 8, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#B8860B';
+            ctx.stroke();
+        }
+    }
+
     for (const p of particles) {
         ctx.globalAlpha = p.life;
         ctx.fillStyle = p.color;
@@ -358,17 +399,20 @@ function draw() {
         ctx.textAlign = 'center';
         ctx.fillText('NIVEAU COMPLÉTÉ !', canvas.width/2, canvas.height/2);
         ctx.font = '24px Arial';
-        ctx.fillText('Appuyez sur Entrée pour le niveau suivant', canvas.width/2, canvas.height/2 + 60);
+        ctx.fillText(`Pièces récoltées : ${player.levelCoins}`, canvas.width/2, canvas.height/2 + 40);
+        ctx.fillText('Appuyez sur Entrée pour le niveau suivant', canvas.width/2, canvas.height/2 + 80);
     }
 
+    // Expert Creative: Improved UI
     ctx.textAlign = 'left';
-    ctx.fillStyle = 'rgba(0,0,0,0.5)';
-    ctx.fillRect(5, 5, 200, 80);
+    ctx.fillStyle = 'rgba(0,0,0,0.7)';
+    ctx.fillRect(5, 5, 220, 100);
     ctx.fillStyle = 'white';
     ctx.font = '14px monospace';
-    ctx.fillText(`FPS: ${stats.fps} | Particles: ${stats.particleCount}`, 15, 25);
-    ctx.fillText(`Level: ${currentLevelIndex + 1}`, 15, 45);
-    ctx.fillText(`Total Wins: ${player.totalWins}`, 15, 65);
+    ctx.fillText(`FPS: ${stats.fps} | Particules: ${stats.particleCount}`, 15, 25);
+    ctx.fillText(`Niveau: ${currentLevelIndex + 1}`, 15, 45);
+    ctx.fillText(`Pièces (Total): ${player.totalCoins}`, 15, 65);
+    ctx.fillText(`Pièces (Niveau): ${player.levelCoins}`, 15, 85);
 }
 
 function loop() {
@@ -380,4 +424,4 @@ function loop() {
 loadGame();
 initLevel(currentLevelIndex);
 loop();
-console.log("VFX: Retours haptiques visuels (Screen Shake) ajoutés.");
+console.log("Système de Collectables (Pièces) initialisé.");

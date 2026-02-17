@@ -1,12 +1,9 @@
-# Rapport de Cycle - Expert VFX
-- Tâche effectuée : Ajout de retours haptiques visuels (Screen Shake).
+# Rapport de Cycle - Expert Engine & Creative
+- Tâches effectuées : Système de Collectables (Pièces) et Mise à jour de l'UI.
 - Détails techniques :
-    - Implémentation d'un système de "Screen Shake" (tremblement d'écran) dynamique.
-    - Intensité variable selon l'événement :
-        - Léger : Atterrissage brutal.
-        - Moyen : Élimination d'un ennemi.
-        - Fort : Mort du joueur.
-        - Intense : Victoire (passage de niveau).
-    - Amélioration de la vélocité des particules pour plus de "punch" visuel.
-- État final : Le Game Feel est considérablement amélioré, rendant chaque action plus satisfaisante.
-- Prochaine étape suggérée : Production de nouveaux niveaux ou introduction de mécaniques d'objets (collectables).
+    - Implémentation de l'objet `coins` avec détection de collision circulaire simplifiée.
+    - Ajout d'un système de score persistant (total des pièces récoltées).
+    - VFX : Génération de particules dorées et micro-shake lors de la collecte pour un meilleur feedback.
+    - UI : Panneau de statistiques amélioré incluant le compte de pièces du niveau et le total.
+    - Écran de victoire mis à jour avec le résumé des pièces récoltées.
+- Prochaine étape suggérée : QA - Équilibrage de la difficulté du Niveau 2.
