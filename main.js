@@ -41,18 +41,18 @@ const levels = [
             { x: 600, y: 550, width: 600, height: 50, type: 'ground' },
             { x: 1300, y: 550, width: 500, height: 50, type: 'ground' },
             { x: 100, y: 450, width: 100, height: 20, type: 'platform' },
-            { x: 300, y: 350, width: 100, height: 20, type: 'platform' },
-            { x: 500, y: 250, width: 100, height: 20, type: 'platform' },
+            { x: 300, y: 350, width: 120, height: 20, type: 'platform' }, // Un peu plus large pour aider
+            { x: 520, y: 260, width: 100, height: 20, type: 'platform' }, // Ajusté position
             { x: 750, y: 250, width: 150, height: 20, type: 'platform' },
             { x: 1000, y: 350, width: 100, height: 20, type: 'platform' },
             { x: 1200, y: 450, width: 100, height: 20, type: 'platform' },
             { x: 1450, y: 350, width: 150, height: 20, type: 'platform' }
         ],
         enemies: [
-            { x: 200, y: 520, width: 30, height: 30, color: '#FF4444', vx: 2, range: 100, startX: 200 },
-            { x: 800, y: 520, width: 30, height: 30, color: '#FF4444', vx: 4, range: 150, startX: 800 },
-            { x: 1400, y: 520, width: 30, height: 30, color: '#FF4444', vx: 3, range: 100, startX: 1400 },
-            { x: 750, y: 220, width: 30, height: 30, color: '#FF4444', vx: 2, range: 50, startX: 750 }
+            { x: 200, y: 520, width: 30, height: 30, color: '#FF4444', vx: 1.5, range: 80, startX: 200 }, // Ralenti
+            { x: 800, y: 520, width: 30, height: 30, color: '#FF4444', vx: 3, range: 150, startX: 800 }, // Un peu plus lent
+            { x: 1400, y: 520, width: 30, height: 30, color: '#FF4444', vx: 2.5, range: 100, startX: 1400 },
+            { x: 750, y: 220, width: 30, height: 30, color: '#FF4444', vx: 1.5, range: 40, startX: 750 } // Ralenti sur plateforme
         ],
         coins: [
             { x: 150, y: 400 }, { x: 350, y: 300 }, { x: 550, y: 200 }, { x: 825, y: 200 }, { x: 1500, y: 300 }

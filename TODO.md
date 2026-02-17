@@ -18,4 +18,7 @@ Un jeu de plateforme simple avec des niveaux courts et amusants.
 - [x] Système de Collectables (Pièces d'or) (Expert Engine)
 - [x] UI: Compteur de pièces et Score total (Expert Creative)
 - [x] VFX: Effet de brillance/particules sur collecte (Expert VFX)
-- [ ] QA: Équilibrage de la difficulté du Niveau 2 (Expert QA)
+- [x] QA: Équilibrage de la difficulté du Niveau 2 (Expert QA)
+- [ ] Ajout d'un système de Score persistant (Leaderboard local) (Expert Engine)
+- [ ] Création d'un menu principal (Start Screen) (Expert Creative)
+- [ ] Amélioration des visuels des plateformes (Texturation) (Expert Creative)
