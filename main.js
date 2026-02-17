@@ -59,6 +59,9 @@ const levels = [
         coins: [
             { x: 150, y: 400 }, { x: 350, y: 300 }, { x: 550, y: 200 }, { x: 825, y: 200 }, { x: 1500, y: 300 }
         ],
+        items: [
+            { x: 900, y: 200, type: 'heart' }
+        ],
         goal: { x: 1700, y: 470, width: 40, height: 80 }
     }
 ];
@@ -94,6 +97,42 @@ function updateLeaderboard(score) {
     leaderboard.sort((a, b) => b.score - a.score);
     leaderboard = leaderboard.slice(0, 5); // Garder le top 5
     saveGame();
+}
+
+// --- ITEM SYSTEM ---
+const items = [];
+
+function createItem(x, y, type) {
+    items.push({
+        x: x,
+        y: y,
+        width: 24,
+        height: 24,
+        type: type, // 'heart'
+        collected: false,
+        bob: 0
+    });
+}
+
+function updateItems() {
+    for (let i = items.length - 1; i >= 0; i--) {
+        const item = items[i];
+        item.bob += 0.1;
+        
+        if (!item.collected &&
+            player.x < item.x + item.width &&
+            player.x + player.width > item.x &&
+            player.y < item.y + item.height + Math.sin(item.bob) * 5 &&
+            player.y + player.height > item.y + Math.sin(item.bob) * 5) {
+            
+            item.collected = true;
+            if (item.type === 'heart') {
+                player.hp = Math.min(player.hp + 1, player.maxHp);
+                createParticles(item.x + item.width/2, item.y + item.height/2, '#FF0000', 15);
+                playTone(600, 'sine', 0.2);
+            }
+        }
+    }
 }
 
 // --- GAME OBJECTS ---
@@ -152,6 +191,10 @@ function initLevel(index) {
     goal.reached = false;
     enemies = currentLevel.enemies.map(en => ({ ...en }));
     coins = currentLevel.coins.map(c => ({ ...c, width: 20, height: 20, collected: false }));
+    items.length = 0;
+    if (currentLevel.items) {
+        currentLevel.items.forEach(it => createItem(it.x, it.y, it.type));
+    }
     levelTimer = currentLevel.timeLimit;
 
     // Expert VFX: Init Clouds
@@ -460,6 +503,7 @@ function update() {
 
     updateEnemies();
     updateCoins();
+    updateItems();
     updateParticles();
 
     // Expert VFX: Update Clouds
@@ -599,6 +643,21 @@ function draw() {
             ctx.fill();
             ctx.strokeStyle = '#B8860B';
             ctx.stroke();
+        }
+    }
+
+    // Expert Engine: Draw Items
+    for (const item of items) {
+        if (!item.collected) {
+            if (item.type === 'heart') {
+                const y = item.y + Math.sin(item.bob) * 5;
+                ctx.fillStyle = '#FF0000';
+                ctx.beginPath();
+                ctx.moveTo(item.x + 12, y + 20);
+                ctx.bezierCurveTo(item.x - 5, y + 10, item.x + 5, y - 5, item.x + 12, y + 5);
+                ctx.bezierCurveTo(item.x + 19, y - 5, item.x + 29, y + 10, item.x + 12, y + 20);
+                ctx.fill();
+            }
         }
     }
 
