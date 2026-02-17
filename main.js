@@ -161,6 +161,7 @@ const player = {
 
 const particles = [];
 const clouds = []; // Expert VFX: Ambiance
+const mountains = []; // Expert Creative: Background Parallax
 const MAX_PARTICLES = 200;
 
 let currentLevel = null;
@@ -205,6 +206,17 @@ function initLevel(index) {
             y: Math.random() * (canvas.height / 2),
             speed: 0.2 + Math.random() * 0.5,
             size: 30 + Math.random() * 50
+        });
+    }
+
+    // Expert Creative: Init Mountains
+    mountains.length = 0;
+    for (let i = 0; i < 5; i++) {
+        mountains.push({
+            x: i * 400,
+            width: 300 + Math.random() * 200,
+            height: 100 + Math.random() * 150,
+            color: '#5e7b8a' // Teinte bleutée pour la perspective atmosphérique
         });
     }
 
@@ -570,6 +582,17 @@ function draw() {
     ctx.fillStyle = colors.sky;
     ctx.fillRect(Math.floor(camera.x) - shakeX, -shakeY, canvas.width, canvas.height);
     
+    // Expert Creative: Draw Mountains (Background Parallax 0.1)
+    for (const mt of mountains) {
+        const px = (mt.x - camera.x * 0.1);
+        ctx.fillStyle = mt.color;
+        ctx.beginPath();
+        ctx.moveTo(px, canvas.height);
+        ctx.lineTo(px + mt.width / 2, canvas.height - mt.height);
+        ctx.lineTo(px + mt.width, canvas.height);
+        ctx.fill();
+    }
+
     // Expert VFX: Draw Clouds (With Parallax)
     ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
     for (const cloud of clouds) {
