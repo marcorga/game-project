@@ -620,6 +620,21 @@ function draw() {
     ctx.fillText(`PV: ${player.hp}/${player.maxHp}`, 15, 80);
     ctx.fillText(`Pièces (Total): ${player.totalCoins}`, 15, 100);
     ctx.fillText(`Pièces (Niveau): ${player.levelCoins}`, 15, 120);
+
+    // Expert Creative: Level Progress Bar
+    const barWidth = 200;
+    const barHeight = 10;
+    const barX = 15;
+    const barY = 135;
+    const progress = Math.min(player.x / currentLevel.width, 1);
+    
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+    ctx.fillRect(barX, barY, barWidth, barHeight);
+    ctx.fillStyle = '#00FF00';
+    ctx.fillRect(barX, barY, barWidth * progress, barHeight);
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(barX, barY, barWidth, barHeight);
 }
 
 function loop() {
