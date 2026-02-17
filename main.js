@@ -118,6 +118,7 @@ const player = {
 };
 
 const particles = [];
+const clouds = []; // Expert VFX: Ambiance
 const MAX_PARTICLES = 200;
 
 let currentLevel = null;
@@ -147,6 +148,18 @@ function initLevel(index) {
     enemies = currentLevel.enemies.map(en => ({ ...en }));
     coins = currentLevel.coins.map(c => ({ ...c, width: 20, height: 20, collected: false }));
     levelTimer = currentLevel.timeLimit;
+
+    // Expert VFX: Init Clouds
+    clouds.length = 0;
+    for (let i = 0; i < 10; i++) {
+        clouds.push({
+            x: Math.random() * currentLevel.width,
+            y: Math.random() * (canvas.height / 2),
+            speed: 0.2 + Math.random() * 0.5,
+            size: 30 + Math.random() * 50
+        });
+    }
+
     saveGame();
 }
 
@@ -398,6 +411,14 @@ function update() {
     updateEnemies();
     updateCoins();
     updateParticles();
+
+    // Expert VFX: Update Clouds
+    for (const cloud of clouds) {
+        cloud.x -= cloud.speed;
+        if (cloud.x + cloud.size < 0) {
+            cloud.x = currentLevel.width;
+        }
+    }
 }
 
 function updateParticles() {
@@ -451,6 +472,17 @@ function draw() {
     ctx.fillStyle = colors.sky;
     ctx.fillRect(Math.floor(camera.x) - shakeX, -shakeY, canvas.width, canvas.height);
     
+    // Expert VFX: Draw Clouds (Parallax-ish)
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+    for (const cloud of clouds) {
+        // Simple cloud shape with 3 circles
+        ctx.beginPath();
+        ctx.arc(cloud.x, cloud.y, cloud.size * 0.5, 0, Math.PI * 2);
+        ctx.arc(cloud.x + cloud.size * 0.3, cloud.y - cloud.size * 0.2, cloud.size * 0.4, 0, Math.PI * 2);
+        ctx.arc(cloud.x + cloud.size * 0.6, cloud.y, cloud.size * 0.5, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
     ctx.fillStyle = goal.color;
     ctx.fillRect(goal.x, goal.y, goal.width, goal.height);
     ctx.fillStyle = 'white';
