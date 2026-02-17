@@ -212,8 +212,8 @@ function killPlayer() {
     player.shakeTime = 15;
     createParticles(player.x + player.width/2, player.y + player.height/2, player.color, 25);
     setTimeout(() => {
-        initLevel(currentLevelIndex);
-    }, 1000);
+        gameState = 'GAMEOVER';
+    }, 800);
 }
 
 const gravity = 0.5;
@@ -242,7 +242,13 @@ function update() {
     }
 
     if (gameState === 'START') {
+        // ... (contenu du menu)
+        return;
+    }
+
+    if (gameState === 'GAMEOVER') {
         if (keys['Enter'] || keys['Space']) {
+            initLevel(currentLevelIndex);
             gameState = 'PLAYING';
         }
         return;
@@ -473,6 +479,17 @@ function draw() {
         ctx.font = '24px Arial';
         ctx.fillText(`Pièces récoltées : ${player.levelCoins}`, canvas.width/2, canvas.height/2 + 40);
         ctx.fillText('Appuyez sur Entrée pour le niveau suivant', canvas.width/2, canvas.height/2 + 80);
+    }
+
+    if (gameState === 'GAMEOVER') {
+        ctx.fillStyle = 'rgba(255,0,0,0.3)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'white';
+        ctx.textAlign = 'center';
+        ctx.font = 'bold 64px Arial';
+        ctx.fillText('GAME OVER', canvas.width/2, canvas.height/2);
+        ctx.font = '24px Arial';
+        ctx.fillText('Appuyez sur ENTRÉE pour réessayer', canvas.width/2, canvas.height/2 + 60);
     }
 
     // Expert Creative: Improved UI
