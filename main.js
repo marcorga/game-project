@@ -57,6 +57,26 @@ const levels = [
 
 let currentLevelIndex = 0;
 
+// --- SAVE SYSTEM (Expert Engine) ---
+function saveGame() {
+    const saveData = {
+        totalWins: player.totalWins,
+        currentLevel: currentLevelIndex
+    };
+    localStorage.setItem('platformer_save', JSON.stringify(saveData));
+    console.log("Jeu sauvegardé.");
+}
+
+function loadGame() {
+    const saved = localStorage.getItem('platformer_save');
+    if (saved) {
+        const data = JSON.parse(saved);
+        player.totalWins = data.totalWins || 0;
+        currentLevelIndex = data.currentLevel || 0;
+        console.log("Jeu chargé.");
+    }
+}
+
 // --- GAME OBJECTS ---
 const player = {
     x: 50,
@@ -105,6 +125,8 @@ function initLevel(index) {
     
     // Deep copy enemies
     enemies = currentLevel.enemies.map(en => ({ ...en }));
+    
+    saveGame(); // Expert Engine: Save on level start
 }
 
 // --- SYSTEMS ---
@@ -244,6 +266,7 @@ function update() {
         goal.reached = true;
         player.totalWins++;
         createParticles(goal.x + goal.width/2, goal.y + goal.height/2, '#FFFF00', 50);
+        saveGame(); // Expert Engine: Save on win
     }
 
     // Death by falling
@@ -354,6 +377,7 @@ function loop() {
 }
 
 // Start
-initLevel(0);
+loadGame(); // Expert Engine: Load on startup
+initLevel(currentLevelIndex);
 loop();
-console.log("Système de niveaux multiples initialisé.");
+console.log("Système de sauvegarde activé.");

@@ -1,8 +1,7 @@
-# Rapport de Cycle - Expert Engine & Creative
-- Tâches effectuées : Système de niveaux multiples et Design du Niveau 2.
+# Rapport de Cycle - Expert Engine
+- Tâche effectuée : Implémentation d'un système de sauvegarde locale.
 - Détails techniques :
-    - Refactorisation du code pour supporter un tableau de niveaux (`levels`).
-    - Implémentation de `initLevel(index)` pour charger dynamiquement les plateformes, ennemis et objectifs.
-    - Ajout d'une transition de victoire permettant de passer au niveau suivant via la touche "Entrée".
-    - Design du Niveau 2 : plus long (1800px), avec des trous dans le sol (mort par chute) et des ennemis plus rapides patrouillant sur des plateformes en hauteur.
+    - Utilisation de `localStorage` pour persister la progression du joueur.
+    - Sauvegarde automatique du nombre total de victoires et du niveau actuel lors du franchissement du but ou du démarrage d'un nouveau niveau.
+    - Chargement automatique de l'état sauvegardé au lancement du script.
 - Prochaine étape suggérée : Ajout de sons ou retours haptiques visuels (Expert VFX).
