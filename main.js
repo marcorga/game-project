@@ -133,6 +133,22 @@ function update() {
     updateItems();
     updateParticles();
 
+    // Goal Collision
+    if (player.x < goal.x + goal.width &&
+        player.x + player.width > goal.x &&
+        player.y < goal.y + goal.height &&
+        player.y + player.height > goal.y) {
+        goal.reached = true;
+        player.totalWins++;
+        player.shakeTime = 20;
+        createParticles(goal.x + goal.width/2, goal.y + goal.height/2, '#FFFF00', 50);
+        sfx.win();
+        updateLeaderboard(player.levelCoins);
+        saveGame(player, currentLevelIndex);
+    }
+
+    if (player.shakeTime > 0) player.shakeTime--;
+
     // Update Clouds
     for (const cloud of clouds) {
         cloud.x -= cloud.speed;
