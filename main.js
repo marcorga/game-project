@@ -152,6 +152,44 @@ function initLevel(index) {
 
 // --- SYSTEMS ---
 
+// Expert VFX: Simple Web Audio SFX Engine
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function playTone(freq, type, duration, volume = 0.1) {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    
+    gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+    
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
+}
+
+const sfx = {
+    jump: () => playTone(400, 'square', 0.1),
+    coin: () => {
+        playTone(800, 'sine', 0.1);
+        setTimeout(() => playTone(1200, 'sine', 0.1), 50);
+    },
+    death: () => {
+        playTone(200, 'sawtooth', 0.3);
+        playTone(150, 'sawtooth', 0.3);
+    },
+    win: () => {
+        const notes = [523.25, 659.25, 783.99, 1046.50];
+        notes.forEach((f, i) => {
+            setTimeout(() => playTone(f, 'triangle', 0.2, 0.15), i * 100);
+        });
+    }
+};
+
 function createParticles(x, y, color, count) {
     const spaceLeft = MAX_PARTICLES - particles.length;
     const actualCount = Math.min(count, spaceLeft);
@@ -181,6 +219,7 @@ function updateCoins() {
             player.totalCoins++;
             createParticles(coin.x + coin.width/2, coin.y + coin.height/2, '#FFD700', 10);
             player.shakeTime = 2;
+            sfx.coin();
         }
     }
 }
@@ -215,6 +254,7 @@ function killPlayer() {
     player.alive = false;
     player.shakeTime = 15;
     createParticles(player.x + player.width/2, player.y + player.height/2, player.color, 25);
+    sfx.death();
     setTimeout(() => {
         gameState = 'GAMEOVER';
     }, 800);
@@ -304,6 +344,7 @@ function update() {
             player.grounded = false;
             player.jumpPressed = true;
             createParticles(player.x + player.width/2, player.y + player.height, colors.dust, 8);
+            sfx.jump();
         }
     } else {
         player.jumpPressed = false;
@@ -340,6 +381,7 @@ function update() {
         player.totalWins++;
         player.shakeTime = 20;
         createParticles(goal.x + goal.width/2, goal.y + goal.height/2, '#FFFF00', 50);
+        sfx.win();
         updateLeaderboard(player.levelCoins); // Enregistrer le score du niveau
         saveGame();
     }
