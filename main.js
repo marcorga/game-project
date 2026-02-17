@@ -16,6 +16,7 @@ const stats = {
 const levels = [
     {
         width: 1500,
+        timeLimit: 60,
         platforms: [
             { x: 0, y: 550, width: 1500, height: 50, type: 'ground' },
             { x: 200, y: 450, width: 120, height: 20, type: 'platform' },
@@ -36,6 +37,7 @@ const levels = [
     },
     {
         width: 1800,
+        timeLimit: 90,
         platforms: [
             { x: 0, y: 550, width: 500, height: 50, type: 'ground' },
             { x: 600, y: 550, width: 600, height: 50, type: 'ground' },
@@ -63,6 +65,7 @@ const levels = [
 
 let currentLevelIndex = 0;
 let leaderboard = [];
+let levelTimer = 0;
 
 // --- SAVE SYSTEM ---
 function saveGame() {
@@ -143,6 +146,7 @@ function initLevel(index) {
     goal.reached = false;
     enemies = currentLevel.enemies.map(en => ({ ...en }));
     coins = currentLevel.coins.map(c => ({ ...c, width: 20, height: 20, collected: false }));
+    levelTimer = currentLevel.timeLimit;
     saveGame();
 }
 
@@ -242,7 +246,10 @@ function update() {
     }
 
     if (gameState === 'START') {
-        // ... (contenu du menu)
+        if (keys['Enter'] || keys['Space']) {
+            gameState = 'PLAYING';
+            stats.lastTimerUpdate = performance.now();
+        }
         return;
     }
 
@@ -250,8 +257,21 @@ function update() {
         if (keys['Enter'] || keys['Space']) {
             initLevel(currentLevelIndex);
             gameState = 'PLAYING';
+            stats.lastTimerUpdate = performance.now();
         }
         return;
+    }
+
+    // Timer Update
+    const currentTime = performance.now();
+    if (!stats.lastTimerUpdate) stats.lastTimerUpdate = currentTime;
+    if (currentTime - stats.lastTimerUpdate >= 1000) {
+        levelTimer--;
+        stats.lastTimerUpdate = currentTime;
+        if (levelTimer <= 0) {
+            levelTimer = 0;
+            killPlayer();
+        }
     }
 
     if (player.shakeTime > 0) player.shakeTime--;
@@ -500,8 +520,9 @@ function draw() {
     ctx.font = '14px monospace';
     ctx.fillText(`FPS: ${stats.fps} | Particules: ${stats.particleCount}`, 15, 25);
     ctx.fillText(`Niveau: ${currentLevelIndex + 1}`, 15, 45);
-    ctx.fillText(`Pièces (Total): ${player.totalCoins}`, 15, 65);
-    ctx.fillText(`Pièces (Niveau): ${player.levelCoins}`, 15, 85);
+    ctx.fillText(`Temps: ${levelTimer}s`, 15, 60);
+    ctx.fillText(`Pièces (Total): ${player.totalCoins}`, 15, 80);
+    ctx.fillText(`Pièces (Niveau): ${player.levelCoins}`, 15, 100);
 }
 
 function loop() {
