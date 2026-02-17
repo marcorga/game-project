@@ -464,7 +464,11 @@ function update() {
 
     // Expert VFX: Update Clouds
     for (const cloud of clouds) {
+        // Effet de parallaxe : les nuages bougent par rapport à la caméra
+        // + leur propre vitesse autonome
         cloud.x -= cloud.speed;
+        
+        // On gère le bouclage des nuages
         if (cloud.x + cloud.size < 0) {
             cloud.x = currentLevel.width;
         }
@@ -522,14 +526,17 @@ function draw() {
     ctx.fillStyle = colors.sky;
     ctx.fillRect(Math.floor(camera.x) - shakeX, -shakeY, canvas.width, canvas.height);
     
-    // Expert VFX: Draw Clouds (Parallax-ish)
+    // Expert VFX: Draw Clouds (With Parallax)
     ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
     for (const cloud of clouds) {
-        // Simple cloud shape with 3 circles
+        // La position de dessin prend en compte la caméra avec un facteur de parallaxe (0.3)
+        // Les nuages lointains bougent moins vite que le sol
+        const parallaxX = (cloud.x - camera.x * 0.3);
+        
         ctx.beginPath();
-        ctx.arc(cloud.x, cloud.y, cloud.size * 0.5, 0, Math.PI * 2);
-        ctx.arc(cloud.x + cloud.size * 0.3, cloud.y - cloud.size * 0.2, cloud.size * 0.4, 0, Math.PI * 2);
-        ctx.arc(cloud.x + cloud.size * 0.6, cloud.y, cloud.size * 0.5, 0, Math.PI * 2);
+        ctx.arc(parallaxX, cloud.y, cloud.size * 0.5, 0, Math.PI * 2);
+        ctx.arc(parallaxX + cloud.size * 0.3, cloud.y - cloud.size * 0.2, cloud.size * 0.4, 0, Math.PI * 2);
+        ctx.arc(parallaxX + cloud.size * 0.6, cloud.y, cloud.size * 0.5, 0, Math.PI * 2);
         ctx.fill();
     }
 
