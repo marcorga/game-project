@@ -18,7 +18,8 @@ const player = {
     jumpStrength: -10,
     grounded: false,
     jumpPressed: false,
-    alive: true
+    alive: true,
+    wins: 0
 };
 
 // Système de particules (Expert VFX)
@@ -38,13 +39,14 @@ function createParticles(x, y, color, count) {
 }
 
 // Système d'ennemis (Expert Engine)
-const enemies = [
+let enemies = [
     { x: 400, y: 520, width: 30, height: 30, color: '#FF4444', vx: 2, range: 100, startX: 400 },
     { x: 900, y: 520, width: 30, height: 30, color: '#FF4444', vx: 3, range: 200, startX: 900 }
 ];
 
 function updateEnemies() {
-    for (const en of enemies) {
+    for (let i = enemies.length - 1; i >= 0; i--) {
+        const en = enemies[i];
         en.x += en.vx;
         if (Math.abs(en.x - en.startX) > en.range) {
             en.vx *= -1;
@@ -61,23 +63,46 @@ function updateEnemies() {
             if (player.vy > 0 && player.y + player.height - player.vy <= en.y) {
                 // Kill enemy
                 createParticles(en.x + en.width/2, en.y + en.height/2, en.color, 15);
-                enemies.splice(enemies.indexOf(en), 1);
+                enemies.splice(i, 1);
                 player.vy = player.jumpStrength * 0.8; // Rebond
             } else {
                 // Die
-                player.alive = false;
-                createParticles(player.x + player.width/2, player.y + player.height/2, player.color, 20);
-                setTimeout(() => {
-                    player.x = 50;
-                    player.y = 50;
-                    player.vx = 0;
-                    player.vy = 0;
-                    player.alive = true;
-                }, 1000);
+                killPlayer();
             }
         }
     }
 }
+
+function killPlayer() {
+    player.alive = false;
+    createParticles(player.x + player.width/2, player.y + player.height/2, player.color, 20);
+    setTimeout(() => {
+        resetLevel();
+        player.alive = true;
+    }, 1000);
+}
+
+function resetLevel() {
+    player.x = 50;
+    player.y = 50;
+    player.vx = 0;
+    player.vy = 0;
+    // Reset enemies
+    enemies = [
+        { x: 400, y: 520, width: 30, height: 30, color: '#FF4444', vx: 2, range: 100, startX: 400 },
+        { x: 900, y: 520, width: 30, height: 30, color: '#FF4444', vx: 3, range: 200, startX: 900 }
+    ];
+}
+
+// Condition de victoire (Expert Engine)
+const goal = {
+    x: 1400,
+    y: 470,
+    width: 40,
+    height: 80,
+    color: '#FF00FF',
+    reached: false
+};
 
 // Environnement
 const gravity = 0.5;
@@ -108,6 +133,15 @@ window.addEventListener('keyup', e => keys[e.code] = false);
 function update() {
     if (!player.alive) {
         updateParticles();
+        return;
+    }
+
+    if (goal.reached) {
+        updateParticles();
+        if (keys['Enter']) {
+            goal.reached = false;
+            resetLevel();
+        }
         return;
     }
 
@@ -153,6 +187,16 @@ function update() {
         }
     }
 
+    // Collision avec le but
+    if (player.x < goal.x + goal.width &&
+        player.x + player.width > goal.x &&
+        player.y < goal.y + goal.height &&
+        player.y + player.height > goal.y) {
+        goal.reached = true;
+        player.wins++;
+        createParticles(goal.x + goal.width/2, goal.y + goal.height/2, '#FFFF00', 50);
+    }
+
     if (player.x < 0) player.x = 0;
     if (player.x + player.width > levelWidth) player.x = levelWidth - player.width;
     
@@ -183,6 +227,12 @@ function draw() {
     ctx.fillStyle = colors.sky;
     ctx.fillRect(Math.floor(camera.x), 0, canvas.width, canvas.height);
     
+    // Dessiner le but (Drapeau/Portail)
+    ctx.fillStyle = goal.color;
+    ctx.fillRect(goal.x, goal.y, goal.width, goal.height);
+    ctx.fillStyle = 'white';
+    ctx.fillRect(goal.x + 5, goal.y + 5, goal.width - 10, goal.height/2);
+
     for (const plat of platforms) {
         if (plat.type === 'ground') {
             ctx.fillStyle = colors.ground;
@@ -209,7 +259,7 @@ function draw() {
     }
     ctx.globalAlpha = 1.0;
 
-    if (player.alive) {
+    if (player.alive && !goal.reached) {
         ctx.fillStyle = player.color;
         ctx.fillRect(player.x, player.y, player.width, player.height);
         ctx.fillStyle = player.eyeColor;
@@ -220,9 +270,22 @@ function draw() {
     
     ctx.restore();
 
+    if (goal.reached) {
+        ctx.fillStyle = 'rgba(0,0,0,0.5)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'white';
+        ctx.font = '48px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('VICTOIRE !', canvas.width/2, canvas.height/2);
+        ctx.font = '24px Arial';
+        ctx.fillText('Appuyez sur Entrée pour recommencer', canvas.width/2, canvas.height/2 + 60);
+    }
+
+    ctx.textAlign = 'left';
     ctx.fillStyle = 'black';
     ctx.font = '16px Arial';
-    ctx.fillText('Engine: Ennemis ajoutés (Patrouille + Combat de base)', 10, 30);
+    ctx.fillText('Engine: Condition de victoire ajoutée (Drapeau)', 10, 30);
+    ctx.fillText('Victoires: ' + player.wins, 10, 55);
 }
 
 function loop() {
@@ -232,4 +295,4 @@ function loop() {
 }
 
 loop();
-console.log("Ennemis et système de combat initialisés.");
+console.log("Système de victoire opérationnel.");
