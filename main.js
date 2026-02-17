@@ -57,7 +57,7 @@ const levels = [
 
 let currentLevelIndex = 0;
 
-// --- SAVE SYSTEM (Expert Engine) ---
+// --- SAVE SYSTEM ---
 function saveGame() {
     const saveData = {
         totalWins: player.totalWins,
@@ -92,7 +92,8 @@ const player = {
     grounded: false,
     jumpPressed: false,
     alive: true,
-    totalWins: 0
+    totalWins: 0,
+    shakeTime: 0 // Expert VFX: Screen shake
 };
 
 const particles = [];
@@ -107,26 +108,19 @@ const camera = { x: 0, y: 0 };
 function initLevel(index) {
     currentLevelIndex = index % levels.length;
     currentLevel = levels[currentLevelIndex];
-    
-    // Reset player position
     player.x = 50;
     player.y = 50;
     player.vx = 0;
     player.vy = 0;
     player.alive = true;
-    
-    // Load level data
     platforms = currentLevel.platforms;
     goal.x = currentLevel.goal.x;
     goal.y = currentLevel.goal.y;
     goal.width = currentLevel.goal.width;
     goal.height = currentLevel.goal.height;
     goal.reached = false;
-    
-    // Deep copy enemies
     enemies = currentLevel.enemies.map(en => ({ ...en }));
-    
-    saveGame(); // Expert Engine: Save on level start
+    saveGame();
 }
 
 // --- SYSTEMS ---
@@ -138,9 +132,9 @@ function createParticles(x, y, color, count) {
         particles.push({
             x: x,
             y: y,
-            vx: (Math.random() - 0.5) * 4,
-            vy: (Math.random() - 0.5) * 4,
-            size: Math.random() * 4 + 2,
+            vx: (Math.random() - 0.5) * 6,
+            vy: (Math.random() - 0.5) * 6,
+            size: Math.random() * 5 + 2,
             life: 1.0,
             color: color
         });
@@ -165,6 +159,7 @@ function updateEnemies() {
                 createParticles(en.x + en.width/2, en.y + en.height/2, en.color, 15);
                 enemies.splice(i, 1);
                 player.vy = player.jumpStrength * 0.8;
+                player.shakeTime = 5; // Expert VFX: Small shake on kill
             } else {
                 killPlayer();
             }
@@ -174,13 +169,13 @@ function updateEnemies() {
 
 function killPlayer() {
     player.alive = false;
-    createParticles(player.x + player.width/2, player.y + player.height/2, player.color, 20);
+    player.shakeTime = 15; // Expert VFX: Heavy shake on death
+    createParticles(player.x + player.width/2, player.y + player.height/2, player.color, 25);
     setTimeout(() => {
         initLevel(currentLevelIndex);
     }, 1000);
 }
 
-// Environnement
 const gravity = 0.5;
 const friction = 0.8;
 const colors = {
@@ -202,6 +197,8 @@ function update() {
         stats.frameCount = 0;
         stats.lastTime = now;
     }
+
+    if (player.shakeTime > 0) player.shakeTime--;
 
     if (!player.alive) {
         updateParticles();
@@ -250,6 +247,7 @@ function update() {
                 player.grounded = true;
                 if (!wasGrounded) {
                     createParticles(player.x + player.width/2, player.y + player.height, colors.dust, 5);
+                    if (player.vy > 5) player.shakeTime = 3; // Expert VFX: Land shake
                 }
             } else if (player.vy < 0 && (player.y - player.vy) >= (plat.y + plat.height)) {
                 player.y = plat.y + plat.height;
@@ -258,22 +256,18 @@ function update() {
         }
     }
 
-    // Victoire
     if (player.x < goal.x + goal.width &&
         player.x + player.width > goal.x &&
         player.y < goal.y + goal.height &&
         player.y + player.height > goal.y) {
         goal.reached = true;
         player.totalWins++;
+        player.shakeTime = 20; // Expert VFX: Victory shake
         createParticles(goal.x + goal.width/2, goal.y + goal.height/2, '#FFFF00', 50);
-        saveGame(); // Expert Engine: Save on win
+        saveGame();
     }
 
-    // Death by falling
-    if (player.y > canvas.height + 100) {
-        killPlayer();
-    }
-
+    if (player.y > canvas.height + 100) killPlayer();
     if (player.x < 0) player.x = 0;
     if (player.x + player.width > currentLevel.width) player.x = currentLevel.width - player.width;
     
@@ -299,13 +293,21 @@ function updateParticles() {
 
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Expert VFX: Screen Shake implementation
+    let shakeX = 0;
+    let shakeY = 0;
+    if (player.shakeTime > 0) {
+        shakeX = (Math.random() - 0.5) * player.shakeTime;
+        shakeY = (Math.random() - 0.5) * player.shakeTime;
+    }
+
     ctx.save();
-    ctx.translate(-Math.floor(camera.x), 0);
+    ctx.translate(-Math.floor(camera.x) + shakeX, shakeY);
 
     ctx.fillStyle = colors.sky;
-    ctx.fillRect(Math.floor(camera.x), 0, canvas.width, canvas.height);
+    ctx.fillRect(Math.floor(camera.x) - shakeX, -shakeY, canvas.width, canvas.height);
     
-    // Goal
     ctx.fillStyle = goal.color;
     ctx.fillRect(goal.x, goal.y, goal.width, goal.height);
     ctx.fillStyle = 'white';
@@ -359,7 +361,6 @@ function draw() {
         ctx.fillText('Appuyez sur Entrée pour le niveau suivant', canvas.width/2, canvas.height/2 + 60);
     }
 
-    // Debug UI
     ctx.textAlign = 'left';
     ctx.fillStyle = 'rgba(0,0,0,0.5)';
     ctx.fillRect(5, 5, 200, 80);
@@ -376,8 +377,7 @@ function loop() {
     requestAnimationFrame(loop);
 }
 
-// Start
-loadGame(); // Expert Engine: Load on startup
+loadGame();
 initLevel(currentLevelIndex);
 loop();
-console.log("Système de sauvegarde activé.");
+console.log("VFX: Retours haptiques visuels (Screen Shake) ajoutés.");

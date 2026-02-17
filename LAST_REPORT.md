@@ -1,7 +1,12 @@
-# Rapport de Cycle - Expert Engine
-- Tâche effectuée : Implémentation d'un système de sauvegarde locale.
+# Rapport de Cycle - Expert VFX
+- Tâche effectuée : Ajout de retours haptiques visuels (Screen Shake).
 - Détails techniques :
-    - Utilisation de `localStorage` pour persister la progression du joueur.
-    - Sauvegarde automatique du nombre total de victoires et du niveau actuel lors du franchissement du but ou du démarrage d'un nouveau niveau.
-    - Chargement automatique de l'état sauvegardé au lancement du script.
-- Prochaine étape suggérée : Ajout de sons ou retours haptiques visuels (Expert VFX).
+    - Implémentation d'un système de "Screen Shake" (tremblement d'écran) dynamique.
+    - Intensité variable selon l'événement :
+        - Léger : Atterrissage brutal.
+        - Moyen : Élimination d'un ennemi.
+        - Fort : Mort du joueur.
+        - Intense : Victoire (passage de niveau).
+    - Amélioration de la vélocité des particules pour plus de "punch" visuel.
+- État final : Le Game Feel est considérablement amélioré, rendant chaque action plus satisfaisante.
+- Prochaine étape suggérée : Production de nouveaux niveaux ou introduction de mécaniques d'objets (collectables).

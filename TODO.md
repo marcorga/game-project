@@ -13,5 +13,5 @@ Un jeu de plateforme simple avec des niveaux courts et amusants.
 - [x] Optimisation des performances et profilage (Expert Profiler)
 - [x] Système de niveaux multiples (Transition de niveau) (Expert Engine)
 - [x] Design d'un deuxième niveau plus complexe (Expert Creative)
-- [ ] Ajout de sons ou retours haptiques visuels (Expert VFX)
+- [x] Ajout de sons ou retours haptiques visuels (Expert VFX)
 - [x] Sauvegarde locale du record de victoires (Expert Engine)
