@@ -4,13 +4,21 @@ const ctx = canvas.getContext('2d');
 canvas.width = 800;
 canvas.height = 600;
 
+// Expert Profiler: Stats Tracking
+const stats = {
+    fps: 0,
+    lastTime: performance.now(),
+    frameCount: 0,
+    particleCount: 0
+};
+
 // Configuration du joueur
 const player = {
     x: 50,
     y: 50,
     width: 30,
     height: 30,
-    color: '#FFD700', // Or pour le personnage
+    color: '#FFD700',
     eyeColor: '#000',
     vx: 0,
     vy: 0,
@@ -22,10 +30,15 @@ const player = {
     wins: 0
 };
 
-// Système de particules (Expert VFX)
+// Système de particules (Expert VFX + Optimization)
 const particles = [];
+const MAX_PARTICLES = 200; // Expert Profiler: Limit particles to prevent performance degradation
+
 function createParticles(x, y, color, count) {
-    for (let i = 0; i < count; i++) {
+    const spaceLeft = MAX_PARTICLES - particles.length;
+    const actualCount = Math.min(count, spaceLeft);
+    
+    for (let i = 0; i < actualCount; i++) {
         particles.push({
             x: x,
             y: y,
@@ -38,7 +51,7 @@ function createParticles(x, y, color, count) {
     }
 }
 
-// Système d'ennemis (Expert Engine)
+// Système d'ennemis
 let enemies = [
     { x: 400, y: 520, width: 30, height: 30, color: '#FF4444', vx: 2, range: 100, startX: 400 },
     { x: 900, y: 520, width: 30, height: 30, color: '#FF4444', vx: 3, range: 200, startX: 900 }
@@ -52,21 +65,17 @@ function updateEnemies() {
             en.vx *= -1;
         }
 
-        // Collision avec le joueur
         if (player.alive &&
             player.x < en.x + en.width &&
             player.x + player.width > en.x &&
             player.y < en.y + en.height &&
             player.y + player.height > en.y) {
             
-            // Si on tombe dessus (Expert Engine logic)
             if (player.vy > 0 && player.y + player.height - player.vy <= en.y) {
-                // Kill enemy
                 createParticles(en.x + en.width/2, en.y + en.height/2, en.color, 15);
                 enemies.splice(i, 1);
-                player.vy = player.jumpStrength * 0.8; // Rebond
+                player.vy = player.jumpStrength * 0.8;
             } else {
-                // Die
                 killPlayer();
             }
         }
@@ -87,14 +96,12 @@ function resetLevel() {
     player.y = 50;
     player.vx = 0;
     player.vy = 0;
-    // Reset enemies
     enemies = [
         { x: 400, y: 520, width: 30, height: 30, color: '#FF4444', vx: 2, range: 100, startX: 400 },
         { x: 900, y: 520, width: 30, height: 30, color: '#FF4444', vx: 3, range: 200, startX: 900 }
     ];
 }
 
-// Condition de victoire (Expert Engine)
 const goal = {
     x: 1400,
     y: 470,
@@ -104,7 +111,6 @@ const goal = {
     reached: false
 };
 
-// Environnement
 const gravity = 0.5;
 const friction = 0.8;
 const colors = {
@@ -131,6 +137,15 @@ window.addEventListener('keydown', e => keys[e.code] = true);
 window.addEventListener('keyup', e => keys[e.code] = false);
 
 function update() {
+    // Expert Profiler: Update FPS
+    stats.frameCount++;
+    const now = performance.now();
+    if (now > stats.lastTime + 1000) {
+        stats.fps = Math.round((stats.frameCount * 1000) / (now - stats.lastTime));
+        stats.frameCount = 0;
+        stats.lastTime = now;
+    }
+
     if (!player.alive) {
         updateParticles();
         return;
@@ -187,7 +202,6 @@ function update() {
         }
     }
 
-    // Collision avec le but
     if (player.x < goal.x + goal.width &&
         player.x + player.width > goal.x &&
         player.y < goal.y + goal.height &&
@@ -210,6 +224,7 @@ function update() {
 }
 
 function updateParticles() {
+    stats.particleCount = particles.length;
     for (let i = particles.length - 1; i >= 0; i--) {
         const p = particles[i];
         p.x += p.vx;
@@ -227,7 +242,6 @@ function draw() {
     ctx.fillStyle = colors.sky;
     ctx.fillRect(Math.floor(camera.x), 0, canvas.width, canvas.height);
     
-    // Dessiner le but (Drapeau/Portail)
     ctx.fillStyle = goal.color;
     ctx.fillRect(goal.x, goal.y, goal.width, goal.height);
     ctx.fillStyle = 'white';
@@ -281,11 +295,15 @@ function draw() {
         ctx.fillText('Appuyez sur Entrée pour recommencer', canvas.width/2, canvas.height/2 + 60);
     }
 
+    // Expert Profiler: Debug UI
     ctx.textAlign = 'left';
-    ctx.fillStyle = 'black';
-    ctx.font = '16px Arial';
-    ctx.fillText('Engine: Condition de victoire ajoutée (Drapeau)', 10, 30);
-    ctx.fillText('Victoires: ' + player.wins, 10, 55);
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.fillRect(5, 5, 180, 80);
+    ctx.fillStyle = 'white';
+    ctx.font = '14px monospace';
+    ctx.fillText(`FPS: ${stats.fps}`, 15, 25);
+    ctx.fillText(`Particles: ${stats.particleCount}/${MAX_PARTICLES}`, 15, 45);
+    ctx.fillText(`Victoires: ${player.wins}`, 15, 65);
 }
 
 function loop() {
@@ -295,4 +313,4 @@ function loop() {
 }
 
 loop();
-console.log("Système de victoire opérationnel.");
+console.log("Optimisation et Profilage terminés.");

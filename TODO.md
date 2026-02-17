@@ -10,4 +10,4 @@ Un jeu de plateforme simple avec des niveaux courts et amusants.
 - [x] Ajout d'effets de particules (Jump/Land) (Expert VFX)
 - [x] Système d'ennemis simples ou obstacles (Expert Engine)
 - [x] Ajout d'une condition de victoire (Drapeau/Fin de niveau) (Expert Engine)
-- [ ] Optimisation des performances et profilage (Expert Profiler)
+- [x] Optimisation des performances et profilage (Expert Profiler)
