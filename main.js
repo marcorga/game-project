@@ -46,7 +46,8 @@ const levels = [
             { x: 300, y: 350, width: 120, height: 20, type: 'platform' }, // Un peu plus large pour aider
             { x: 520, y: 260, width: 100, height: 20, type: 'platform' }, // Ajusté position
             { x: 750, y: 250, width: 150, height: 20, type: 'platform' },
-            { x: 1000, y: 350, width: 100, height: 20, type: 'platform' },
+            // Plateforme mouvante
+            { x: 1000, y: 350, width: 100, height: 20, type: 'platform', moving: true, vx: 2, vy: 0, rangeX: 100, rangeY: 0, startX: 1000, startY: 350 },
             { x: 1200, y: 450, width: 100, height: 20, type: 'platform' },
             { x: 1450, y: 350, width: 150, height: 20, type: 'platform' }
         ],
@@ -447,6 +448,24 @@ function update() {
         return;
     }
 
+    // Expert Engine: Update Moving Platforms
+    for (const plat of platforms) {
+        if (plat.moving) {
+            plat.x += plat.vx;
+            plat.y += plat.vy;
+            
+            // Rebondir si on dépasse le range
+            if (Math.abs(plat.x - plat.startX) > plat.rangeX) plat.vx *= -1;
+            if (Math.abs(plat.y - plat.startY) > plat.rangeY) plat.vy *= -1;
+            
+            // Déplacer le joueur s'il est dessus
+            if (player.grounded && player.onPlatform === plat) {
+                player.x += plat.vx;
+                player.y += plat.vy;
+            }
+        }
+    }
+
     let wasGrounded = player.grounded;
 
     if (keys['ArrowLeft']) player.vx = -player.speed;
@@ -473,6 +492,7 @@ function update() {
     player.y += player.vy;
 
     player.grounded = false;
+    player.onPlatform = null;
     for (const plat of platforms) {
         if (player.x < plat.x + plat.width && player.x + player.width > plat.x &&
             player.y < plat.y + plat.height && player.y + player.height > plat.y) {
@@ -480,6 +500,7 @@ function update() {
                 player.y = plat.y - player.height;
                 player.vy = 0;
                 player.grounded = true;
+                player.onPlatform = plat;
                 if (!wasGrounded) {
                     createParticles(player.x + player.width/2, player.y + player.height, colors.dust, 5);
                     if (player.vy > 5) player.shakeTime = 3;
