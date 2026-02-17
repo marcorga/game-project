@@ -280,19 +280,24 @@ const sfx = {
 let musicBpm = 120;
 let musicStep = 0;
 let musicInterval = null;
-const musicScale = [261.63, 311.13, 349.23, 392.00, 466.16]; // C minor pentatonic
+const scales = {
+    major: [261.63, 293.66, 329.63, 392.00, 440.00], // C Major pentatonic
+    minor: [261.63, 311.13, 349.23, 392.00, 466.16]  // C Minor pentatonic
+};
 
 function playMusicStep() {
     if (gameState !== 'PLAYING') return;
     
+    const currentScale = currentLevelIndex % 2 === 0 ? scales.major : scales.minor;
+    
     // Bass line
     if (musicStep % 4 === 0) {
-        playTone(musicScale[0] / 2, 'triangle', 0.4, 0.05);
+        playTone(currentScale[0] / 2, 'triangle', 0.4, 0.05);
     }
     
     // Melodic accents
     if (Math.random() > 0.7) {
-        const note = musicScale[Math.floor(Math.random() * musicScale.length)];
+        const note = currentScale[Math.floor(Math.random() * currentScale.length)];
         playTone(note, 'sine', 0.2, 0.03);
     }
     
