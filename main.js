@@ -114,6 +114,8 @@ let coins = [];
 const goal = { x: 0, y: 0, width: 0, height: 0, color: '#FF00FF', reached: false };
 const camera = { x: 0, y: 0 };
 
+let gameState = 'START'; // START, PLAYING, WIN, GAMEOVER
+
 function initLevel(index) {
     currentLevelIndex = index % levels.length;
     currentLevel = levels[currentLevelIndex];
@@ -227,6 +229,13 @@ function update() {
         stats.lastTime = now;
     }
 
+    if (gameState === 'START') {
+        if (keys['Enter'] || keys['Space']) {
+            gameState = 'PLAYING';
+        }
+        return;
+    }
+
     if (player.shakeTime > 0) player.shakeTime--;
 
     if (!player.alive) {
@@ -324,6 +333,23 @@ function updateParticles() {
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
+    if (gameState === 'START') {
+        ctx.fillStyle = colors.sky;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        ctx.fillStyle = 'white';
+        ctx.textAlign = 'center';
+        ctx.font = 'bold 48px Arial';
+        ctx.fillText('SUPER PLATFORMER', canvas.width/2, canvas.height/2 - 40);
+        
+        ctx.font = '24px Arial';
+        ctx.fillText('Appuyez sur ENTRÉE pour commencer', canvas.width/2, canvas.height/2 + 40);
+        
+        ctx.font = '16px Arial';
+        ctx.fillText('Flèches pour bouger • Espace pour sauter', canvas.width/2, canvas.height/2 + 100);
+        return;
+    }
+
     let shakeX = 0;
     let shakeY = 0;
     if (player.shakeTime > 0) {
