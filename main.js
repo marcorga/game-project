@@ -111,6 +111,9 @@ const player = {
     grounded: false,
     jumpPressed: false,
     alive: true,
+    hp: 3,
+    maxHp: 3,
+    invincible: 0,
     totalWins: 0,
     totalCoins: 0,
     levelCoins: 0,
@@ -138,6 +141,8 @@ function initLevel(index) {
     player.vx = 0;
     player.vy = 0;
     player.alive = true;
+    player.hp = player.maxHp;
+    player.invincible = 0;
     player.levelCoins = 0;
     platforms = currentLevel.platforms;
     goal.x = currentLevel.goal.x;
@@ -195,6 +200,9 @@ const sfx = {
         playTone(200, 'sawtooth', 0.3);
         playTone(150, 'sawtooth', 0.3);
     },
+    hit: () => {
+        playTone(300, 'triangle', 0.2);
+    },
     win: () => {
         const notes = [523.25, 659.25, 783.99, 1046.50];
         notes.forEach((f, i) => {
@@ -245,7 +253,7 @@ function updateEnemies() {
             en.vx *= -1;
         }
 
-        if (player.alive && !goal.reached &&
+        if (player.alive && !goal.reached && player.invincible <= 0 &&
             player.x < en.x + en.width &&
             player.x + player.width > en.x &&
             player.y < en.y + en.height &&
@@ -257,9 +265,20 @@ function updateEnemies() {
                 player.vy = player.jumpStrength * 0.8;
                 player.shakeTime = 5;
             } else {
-                killPlayer();
+                takeDamage();
             }
         }
+    }
+}
+
+function takeDamage() {
+    player.hp--;
+    player.shakeTime = 10;
+    player.invincible = 60; // 1 seconde à 60fps
+    createParticles(player.x + player.width/2, player.y + player.height/2, '#FF0000', 10);
+    sfx.hit();
+    if (player.hp <= 0) {
+        killPlayer();
     }
 }
 
@@ -328,6 +347,7 @@ function update() {
     }
 
     if (player.shakeTime > 0) player.shakeTime--;
+    if (player.invincible > 0) player.invincible--;
 
     if (!player.alive) {
         updateParticles();
@@ -553,12 +573,14 @@ function draw() {
     ctx.globalAlpha = 1.0;
 
     if (player.alive && !goal.reached) {
-        ctx.fillStyle = player.color;
-        ctx.fillRect(player.x, player.y, player.width, player.height);
-        ctx.fillStyle = player.eyeColor;
-        const eyeOffset = player.vx >= 0 ? 18 : 5;
-        ctx.fillRect(player.x + eyeOffset, player.y + 8, 5, 5);
-        ctx.fillRect(player.x + eyeOffset + 4, player.y + 8, 5, 5);
+        if (player.invincible % 4 < 2) { // Effet de clignotement
+            ctx.fillStyle = player.color;
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+            ctx.fillStyle = player.eyeColor;
+            const eyeOffset = player.vx >= 0 ? 18 : 5;
+            ctx.fillRect(player.x + eyeOffset, player.y + 8, 5, 5);
+            ctx.fillRect(player.x + eyeOffset + 4, player.y + 8, 5, 5);
+        }
     }
     
     ctx.restore();
@@ -595,8 +617,9 @@ function draw() {
     ctx.fillText(`FPS: ${stats.fps} | Particules: ${stats.particleCount}`, 15, 25);
     ctx.fillText(`Niveau: ${currentLevelIndex + 1}`, 15, 45);
     ctx.fillText(`Temps: ${levelTimer}s`, 15, 60);
-    ctx.fillText(`Pièces (Total): ${player.totalCoins}`, 15, 80);
-    ctx.fillText(`Pièces (Niveau): ${player.levelCoins}`, 15, 100);
+    ctx.fillText(`PV: ${player.hp}/${player.maxHp}`, 15, 80);
+    ctx.fillText(`Pièces (Total): ${player.totalCoins}`, 15, 100);
+    ctx.fillText(`Pièces (Niveau): ${player.levelCoins}`, 15, 120);
 }
 
 function loop() {
