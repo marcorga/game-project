@@ -163,6 +163,7 @@ const player = {
 const particles = [];
 const clouds = []; // Expert VFX: Ambiance
 const mountains = []; // Expert Creative: Background Parallax
+const decorations = []; // Expert Creative: Foreground Props
 const MAX_PARTICLES = 200;
 
 let currentLevel = null;
@@ -210,16 +211,24 @@ function initLevel(index) {
         });
     }
 
-    // Expert Creative: Init Mountains
-    mountains.length = 0;
-    for (let i = 0; i < 5; i++) {
-        mountains.push({
-            x: i * 400,
-            width: 300 + Math.random() * 200,
-            height: 100 + Math.random() * 150,
-            color: '#5e7b8a' // Teinte bleutée pour la perspective atmosphérique
-        });
-    }
+    // Expert Creative: Init Decorations
+    decorations.length = 0;
+    platforms.forEach(plat => {
+        if (plat.type === 'ground' || plat.type === 'platform') {
+            // Ajouter de la décoration aléatoirement sur les surfaces planes
+            const count = Math.floor(plat.width / 100);
+            for (let i = 0; i < count; i++) {
+                if (Math.random() > 0.4) {
+                    decorations.push({
+                        x: plat.x + Math.random() * (plat.width - 20),
+                        y: plat.y,
+                        type: Math.random() > 0.5 ? 'tree' : 'bush',
+                        size: 20 + Math.random() * 20
+                    });
+                }
+            }
+        }
+    });
 
     saveGame();
 }
@@ -632,6 +641,29 @@ function draw() {
     ctx.fillRect(goal.x, goal.y, goal.width, goal.height);
     ctx.fillStyle = 'white';
     ctx.fillRect(goal.x + 5, goal.y + 5, goal.width - 10, goal.height/2);
+
+    // Expert Creative: Draw Decorations
+    for (const dec of decorations) {
+        if (dec.type === 'bush') {
+            ctx.fillStyle = '#1e3d1a';
+            ctx.beginPath();
+            ctx.arc(dec.x, dec.y, dec.size * 0.4, Math.PI, 0);
+            ctx.arc(dec.x + dec.size * 0.4, dec.y, dec.size * 0.5, Math.PI, 0);
+            ctx.arc(dec.x + dec.size * 0.8, dec.y, dec.size * 0.4, Math.PI, 0);
+            ctx.fill();
+        } else if (dec.type === 'tree') {
+            // Tronc
+            ctx.fillStyle = '#3d2616';
+            ctx.fillRect(dec.x + dec.size * 0.3, dec.y - dec.size, dec.size * 0.2, dec.size);
+            // Feuillage
+            ctx.fillStyle = '#2d5a27';
+            ctx.beginPath();
+            ctx.moveTo(dec.x, dec.y - dec.size * 0.8);
+            ctx.lineTo(dec.x + dec.size * 0.4, dec.y - dec.size * 1.8);
+            ctx.lineTo(dec.x + dec.size * 0.8, dec.y - dec.size * 0.8);
+            ctx.fill();
+        }
+    }
 
     for (const plat of platforms) {
         if (plat.type === 'ground') {
