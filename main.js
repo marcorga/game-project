@@ -17,7 +17,8 @@ const player = {
     speed: 5,
     jumpStrength: -10,
     grounded: false,
-    jumpPressed: false
+    jumpPressed: false,
+    alive: true
 };
 
 // Système de particules (Expert VFX)
@@ -33,6 +34,48 @@ function createParticles(x, y, color, count) {
             life: 1.0,
             color: color
         });
+    }
+}
+
+// Système d'ennemis (Expert Engine)
+const enemies = [
+    { x: 400, y: 520, width: 30, height: 30, color: '#FF4444', vx: 2, range: 100, startX: 400 },
+    { x: 900, y: 520, width: 30, height: 30, color: '#FF4444', vx: 3, range: 200, startX: 900 }
+];
+
+function updateEnemies() {
+    for (const en of enemies) {
+        en.x += en.vx;
+        if (Math.abs(en.x - en.startX) > en.range) {
+            en.vx *= -1;
+        }
+
+        // Collision avec le joueur
+        if (player.alive &&
+            player.x < en.x + en.width &&
+            player.x + player.width > en.x &&
+            player.y < en.y + en.height &&
+            player.y + player.height > en.y) {
+            
+            // Si on tombe dessus (Expert Engine logic)
+            if (player.vy > 0 && player.y + player.height - player.vy <= en.y) {
+                // Kill enemy
+                createParticles(en.x + en.width/2, en.y + en.height/2, en.color, 15);
+                enemies.splice(enemies.indexOf(en), 1);
+                player.vy = player.jumpStrength * 0.8; // Rebond
+            } else {
+                // Die
+                player.alive = false;
+                createParticles(player.x + player.width/2, player.y + player.height/2, player.color, 20);
+                setTimeout(() => {
+                    player.x = 50;
+                    player.y = 50;
+                    player.vx = 0;
+                    player.vy = 0;
+                    player.alive = true;
+                }, 1000);
+            }
+        }
     }
 }
 
@@ -63,6 +106,11 @@ window.addEventListener('keydown', e => keys[e.code] = true);
 window.addEventListener('keyup', e => keys[e.code] = false);
 
 function update() {
+    if (!player.alive) {
+        updateParticles();
+        return;
+    }
+
     let wasGrounded = player.grounded;
 
     if (keys['ArrowLeft']) player.vx = -player.speed;
@@ -77,7 +125,6 @@ function update() {
             player.vy = player.jumpStrength;
             player.grounded = false;
             player.jumpPressed = true;
-            // VFX: Particules de saut
             createParticles(player.x + player.width/2, player.y + player.height, colors.dust, 8);
         }
     } else {
@@ -96,7 +143,6 @@ function update() {
                 player.y = plat.y - player.height;
                 player.vy = 0;
                 player.grounded = true;
-                // VFX: Particules d'atterrissage
                 if (!wasGrounded) {
                     createParticles(player.x + player.width/2, player.y + player.height, colors.dust, 5);
                 }
@@ -115,7 +161,11 @@ function update() {
     if (camera.x < 0) camera.x = 0;
     if (camera.x > levelWidth - canvas.width) camera.x = levelWidth - canvas.width;
 
-    // Mise à jour des particules
+    updateEnemies();
+    updateParticles();
+}
+
+function updateParticles() {
     for (let i = particles.length - 1; i >= 0; i--) {
         const p = particles[i];
         p.x += p.vx;
@@ -147,7 +197,11 @@ function draw() {
         }
     }
 
-    // Dessiner les particules (VFX)
+    for (const en of enemies) {
+        ctx.fillStyle = en.color;
+        ctx.fillRect(en.x, en.y, en.width, en.height);
+    }
+
     for (const p of particles) {
         ctx.globalAlpha = p.life;
         ctx.fillStyle = p.color;
@@ -155,18 +209,20 @@ function draw() {
     }
     ctx.globalAlpha = 1.0;
 
-    ctx.fillStyle = player.color;
-    ctx.fillRect(player.x, player.y, player.width, player.height);
-    ctx.fillStyle = player.eyeColor;
-    const eyeOffset = player.vx >= 0 ? 18 : 5;
-    ctx.fillRect(player.x + eyeOffset, player.y + 8, 5, 5);
-    ctx.fillRect(player.x + eyeOffset + 4, player.y + 8, 5, 5);
+    if (player.alive) {
+        ctx.fillStyle = player.color;
+        ctx.fillRect(player.x, player.y, player.width, player.height);
+        ctx.fillStyle = player.eyeColor;
+        const eyeOffset = player.vx >= 0 ? 18 : 5;
+        ctx.fillRect(player.x + eyeOffset, player.y + 8, 5, 5);
+        ctx.fillRect(player.x + eyeOffset + 4, player.y + 8, 5, 5);
+    }
     
     ctx.restore();
 
     ctx.fillStyle = 'black';
     ctx.font = '16px Arial';
-    ctx.fillText('VFX: Système de particules ajouté (Saut/Atterrissage)', 10, 30);
+    ctx.fillText('Engine: Ennemis ajoutés (Patrouille + Combat de base)', 10, 30);
 }
 
 function loop() {
@@ -176,4 +232,4 @@ function loop() {
 }
 
 loop();
-console.log("Système VFX activé.");
+console.log("Ennemis et système de combat initialisés.");
