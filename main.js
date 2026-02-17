@@ -10,7 +10,8 @@ const player = {
     y: 50,
     width: 30,
     height: 30,
-    color: '#00FF00',
+    color: '#FFD700', // Or pour le personnage
+    eyeColor: '#000',
     vx: 0,
     vy: 0,
     speed: 5,
@@ -21,11 +22,17 @@ const player = {
 // Environnement
 const gravity = 0.5;
 const friction = 0.8;
+const colors = {
+    ground: '#4a2c2a', // Marron terre
+    grass: '#2d5a27',  // Vert herbe
+    sky: '#87CEEB'     // Bleu ciel
+};
+
 const platforms = [
-    { x: 0, y: 550, width: 800, height: 50 }, // Sol
-    { x: 200, y: 450, width: 150, height: 20 },
-    { x: 450, y: 350, width: 150, height: 20 },
-    { x: 150, y: 250, width: 150, height: 20 }
+    { x: 0, y: 550, width: 800, height: 50, type: 'ground' }, // Sol
+    { x: 200, y: 450, width: 150, height: 20, type: 'platform' },
+    { x: 450, y: 350, width: 150, height: 20, type: 'platform' },
+    { x: 150, y: 250, width: 150, height: 20, type: 'platform' }
 ];
 
 // Contrôles
@@ -75,21 +82,39 @@ function update() {
 }
 
 function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Fond ciel
+    ctx.fillStyle = colors.sky;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     
     // Dessiner les plateformes
-    ctx.fillStyle = '#555';
     for (const plat of platforms) {
-        ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
+        if (plat.type === 'ground') {
+            ctx.fillStyle = colors.ground;
+            ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
+            // Bord herbe
+            ctx.fillStyle = colors.grass;
+            ctx.fillRect(plat.x, plat.y, plat.width, 10);
+        } else {
+            ctx.fillStyle = '#8B4513'; // Bois
+            ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
+            ctx.strokeStyle = '#5D2E0C';
+            ctx.strokeRect(plat.x, plat.y, plat.width, plat.height);
+        }
     }
 
-    // Dessiner le joueur
+    // Dessiner le joueur (Petit personnage avec yeux)
     ctx.fillStyle = player.color;
     ctx.fillRect(player.x, player.y, player.width, player.height);
     
-    ctx.fillStyle = 'white';
+    // Yeux selon direction
+    ctx.fillStyle = player.eyeColor;
+    const eyeOffset = player.vx >= 0 ? 18 : 5;
+    ctx.fillRect(player.x + eyeOffset, player.y + 8, 5, 5);
+    ctx.fillRect(player.x + eyeOffset + 4, player.y + 8, 5, 5);
+    
+    ctx.fillStyle = 'black';
     ctx.font = '16px Arial';
-    ctx.fillText('Flèches pour bouger, Espace pour sauter', 10, 30);
+    ctx.fillText('Design visuel appliqué', 10, 30);
 }
 
 function loop() {
