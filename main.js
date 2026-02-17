@@ -211,6 +211,34 @@ const sfx = {
     }
 };
 
+// Expert VFX: Music Engine (Simple Loop)
+let musicBpm = 120;
+let musicStep = 0;
+let musicInterval = null;
+const musicScale = [261.63, 311.13, 349.23, 392.00, 466.16]; // C minor pentatonic
+
+function playMusicStep() {
+    if (gameState !== 'PLAYING') return;
+    
+    // Bass line
+    if (musicStep % 4 === 0) {
+        playTone(musicScale[0] / 2, 'triangle', 0.4, 0.05);
+    }
+    
+    // Melodic accents
+    if (Math.random() > 0.7) {
+        const note = musicScale[Math.floor(Math.random() * musicScale.length)];
+        playTone(note, 'sine', 0.2, 0.03);
+    }
+    
+    musicStep = (musicStep + 1) % 16;
+}
+
+function startMusic() {
+    if (musicInterval) clearInterval(musicInterval);
+    musicInterval = setInterval(playMusicStep, (60 / musicBpm) * 250); // 16th notes
+}
+
 function createParticles(x, y, color, count) {
     const spaceLeft = MAX_PARTICLES - particles.length;
     const actualCount = Math.min(count, spaceLeft);
@@ -321,6 +349,7 @@ function update() {
         if (keys['Enter'] || keys['Space']) {
             gameState = 'PLAYING';
             stats.lastTimerUpdate = performance.now();
+            startMusic();
         }
         return;
     }
@@ -330,6 +359,7 @@ function update() {
             initLevel(currentLevelIndex);
             gameState = 'PLAYING';
             stats.lastTimerUpdate = performance.now();
+            startMusic();
         }
         return;
     }
