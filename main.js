@@ -62,13 +62,15 @@ const levels = [
 ];
 
 let currentLevelIndex = 0;
+let leaderboard = [];
 
 // --- SAVE SYSTEM ---
 function saveGame() {
     const saveData = {
         totalWins: player.totalWins,
         currentLevel: currentLevelIndex,
-        totalCoins: player.totalCoins
+        totalCoins: player.totalCoins,
+        leaderboard: leaderboard
     };
     localStorage.setItem('platformer_save', JSON.stringify(saveData));
 }
@@ -80,7 +82,15 @@ function loadGame() {
         player.totalWins = data.totalWins || 0;
         currentLevelIndex = data.currentLevel || 0;
         player.totalCoins = data.totalCoins || 0;
+        leaderboard = data.leaderboard || [];
     }
+}
+
+function updateLeaderboard(score) {
+    leaderboard.push({ score: score, date: new Date().toLocaleDateString() });
+    leaderboard.sort((a, b) => b.score - a.score);
+    leaderboard = leaderboard.slice(0, 5); // Garder le top 5
+    saveGame();
 }
 
 // --- GAME OBJECTS ---
@@ -302,6 +312,7 @@ function update() {
         player.totalWins++;
         player.shakeTime = 20;
         createParticles(goal.x + goal.width/2, goal.y + goal.height/2, '#FFFF00', 50);
+        updateLeaderboard(player.levelCoins); // Enregistrer le score du niveau
         saveGame();
     }
 
@@ -340,13 +351,20 @@ function draw() {
         ctx.fillStyle = 'white';
         ctx.textAlign = 'center';
         ctx.font = 'bold 48px Arial';
-        ctx.fillText('SUPER PLATFORMER', canvas.width/2, canvas.height/2 - 40);
+        ctx.fillText('SUPER PLATFORMER', canvas.width/2, canvas.height/2 - 120);
         
         ctx.font = '24px Arial';
-        ctx.fillText('Appuyez sur ENTRÉE pour commencer', canvas.width/2, canvas.height/2 + 40);
+        ctx.fillText('Appuyez sur ENTRÉE pour commencer', canvas.width/2, canvas.height/2 - 40);
         
+        ctx.font = '20px Arial';
+        ctx.fillText('LEADERBOARD (Pièces)', canvas.width/2, canvas.height/2 + 20);
         ctx.font = '16px Arial';
-        ctx.fillText('Flèches pour bouger • Espace pour sauter', canvas.width/2, canvas.height/2 + 100);
+        leaderboard.forEach((entry, i) => {
+            ctx.fillText(`${i+1}. ${entry.score} pièces (${entry.date})`, canvas.width/2, canvas.height/2 + 50 + (i * 20));
+        });
+
+        ctx.font = '16px Arial';
+        ctx.fillText('Flèches pour bouger • Espace pour sauter', canvas.width/2, canvas.height/2 + 180);
         return;
     }
 
