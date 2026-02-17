@@ -17,22 +17,38 @@ const player = {
     speed: 5,
     jumpStrength: -10,
     grounded: false,
-    jumpPressed: false // Pour éviter le multi-saut
+    jumpPressed: false
 };
+
+// Système de particules (Expert VFX)
+const particles = [];
+function createParticles(x, y, color, count) {
+    for (let i = 0; i < count; i++) {
+        particles.push({
+            x: x,
+            y: y,
+            vx: (Math.random() - 0.5) * 4,
+            vy: (Math.random() - 0.5) * 4,
+            size: Math.random() * 4 + 2,
+            life: 1.0,
+            color: color
+        });
+    }
+}
 
 // Environnement
 const gravity = 0.5;
 const friction = 0.8;
 const colors = {
-    ground: '#4a2c2a', // Marron terre
-    grass: '#2d5a27',  // Vert herbe
-    sky: '#87CEEB'     // Bleu ciel
+    ground: '#4a2c2a',
+    grass: '#2d5a27',
+    sky: '#87CEEB',
+    dust: '#FFF'
 };
 
-// Premier niveau de test (Expert Creative)
 const levelWidth = 1500;
 const platforms = [
-    { x: 0, y: 550, width: levelWidth, height: 50, type: 'ground' }, // Longue base
+    { x: 0, y: 550, width: levelWidth, height: 50, type: 'ground' },
     { x: 200, y: 450, width: 120, height: 20, type: 'platform' },
     { x: 400, y: 380, width: 120, height: 20, type: 'platform' },
     { x: 600, y: 300, width: 150, height: 20, type: 'platform' },
@@ -41,92 +57,82 @@ const platforms = [
     { x: 1250, y: 450, width: 150, height: 20, type: 'platform' }
 ];
 
-// Caméra simple
-const camera = {
-    x: 0,
-    y: 0
-};
-
-// Contrôles
+const camera = { x: 0, y: 0 };
 const keys = {};
 window.addEventListener('keydown', e => keys[e.code] = true);
 window.addEventListener('keyup', e => keys[e.code] = false);
 
 function update() {
-    // Mouvement horizontal (Expert QA: Amélioration de la réactivité)
-    if (keys['ArrowLeft']) {
-        player.vx = -player.speed;
-    } else if (keys['ArrowRight']) {
-        player.vx = player.speed;
-    } else {
+    let wasGrounded = player.grounded;
+
+    if (keys['ArrowLeft']) player.vx = -player.speed;
+    else if (keys['ArrowRight']) player.vx = player.speed;
+    else {
         player.vx *= friction;
         if (Math.abs(player.vx) < 0.1) player.vx = 0;
     }
 
-    // Saut (Expert QA: Correction du saut continu)
     if (keys['Space']) {
         if (player.grounded && !player.jumpPressed) {
             player.vy = player.jumpStrength;
             player.grounded = false;
             player.jumpPressed = true;
+            // VFX: Particules de saut
+            createParticles(player.x + player.width/2, player.y + player.height, colors.dust, 8);
         }
     } else {
         player.jumpPressed = false;
     }
 
-    // Gravité
     player.vy += gravity;
-
-    // Mise à jour position
     player.x += player.vx;
     player.y += player.vy;
 
-    // Collisions avec les plateformes (Expert QA: Robustesse des collisions)
     player.grounded = false;
     for (const plat of platforms) {
-        if (player.x < plat.x + plat.width &&
-            player.x + player.width > plat.x &&
-            player.y < plat.y + plat.height &&
-            player.y + player.height > plat.y) {
-            
-            // Collision par le haut (Atterrissage)
+        if (player.x < plat.x + plat.width && player.x + player.width > plat.x &&
+            player.y < plat.y + plat.height && player.y + player.height > plat.y) {
             if (player.vy > 0 && (player.y + player.height - player.vy) <= plat.y) {
                 player.y = plat.y - player.height;
                 player.vy = 0;
                 player.grounded = true;
-            }
-            // Collision par le bas (Tête contre plateforme)
-            else if (player.vy < 0 && (player.y - player.vy) >= (plat.y + plat.height)) {
+                // VFX: Particules d'atterrissage
+                if (!wasGrounded) {
+                    createParticles(player.x + player.width/2, player.y + player.height, colors.dust, 5);
+                }
+            } else if (player.vy < 0 && (player.y - player.vy) >= (plat.y + plat.height)) {
                 player.y = plat.y + plat.height;
                 player.vy = 0;
             }
         }
     }
 
-    // Limites de monde
     if (player.x < 0) player.x = 0;
     if (player.x + player.width > levelWidth) player.x = levelWidth - player.width;
     
-    // Suivi de caméra fluide (Expert QA: Interpolation simple)
     let targetCameraX = player.x - canvas.width / 2;
     camera.x += (targetCameraX - camera.x) * 0.1;
-
-    // Bornes de caméra
     if (camera.x < 0) camera.x = 0;
     if (camera.x > levelWidth - canvas.width) camera.x = levelWidth - canvas.width;
+
+    // Mise à jour des particules
+    for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life -= 0.02;
+        if (p.life <= 0) particles.splice(i, 1);
+    }
 }
 
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
     ctx.save();
     ctx.translate(-Math.floor(camera.x), 0);
 
-    // Fond ciel
     ctx.fillStyle = colors.sky;
     ctx.fillRect(Math.floor(camera.x), 0, canvas.width, canvas.height);
     
-    // Dessiner les plateformes
     for (const plat of platforms) {
         if (plat.type === 'ground') {
             ctx.fillStyle = colors.ground;
@@ -141,10 +147,16 @@ function draw() {
         }
     }
 
-    // Dessiner le joueur
+    // Dessiner les particules (VFX)
+    for (const p of particles) {
+        ctx.globalAlpha = p.life;
+        ctx.fillStyle = p.color;
+        ctx.fillRect(p.x, p.y, p.size, p.size);
+    }
+    ctx.globalAlpha = 1.0;
+
     ctx.fillStyle = player.color;
     ctx.fillRect(player.x, player.y, player.width, player.height);
-    
     ctx.fillStyle = player.eyeColor;
     const eyeOffset = player.vx >= 0 ? 18 : 5;
     ctx.fillRect(player.x + eyeOffset, player.y + 8, 5, 5);
@@ -154,7 +166,7 @@ function draw() {
 
     ctx.fillStyle = 'black';
     ctx.font = '16px Arial';
-    ctx.fillText('Optimisation QA : Caméra fluide & Collisions robustes', 10, 30);
+    ctx.fillText('VFX: Système de particules ajouté (Saut/Atterrissage)', 10, 30);
 }
 
 function loop() {
@@ -164,4 +176,4 @@ function loop() {
 }
 
 loop();
-console.log("Optimisations QA appliquées.");
+console.log("Système VFX activé.");
