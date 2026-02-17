@@ -69,6 +69,42 @@ function drawBackground(ctx, canvas, camera, clouds, mountains) {
     ctx.restore();
 }
 
+function drawPlatforms(ctx, platforms) {
+    for (const plat of platforms) {
+        if (plat.type === 'ground') {
+            ctx.fillStyle = colors.ground;
+            ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
+            ctx.fillStyle = colors.grass;
+            ctx.fillRect(plat.x, plat.y, plat.width, 10);
+            
+            ctx.beginPath();
+            ctx.strokeStyle = colors.grass;
+            ctx.lineWidth = 2;
+            for (let i = 0; i < plat.width; i += 15) {
+                const grassH = 5 + Math.random() * 5;
+                ctx.moveTo(plat.x + i, plat.y);
+                ctx.lineTo(plat.x + i + (Math.random() - 0.5) * 5, plat.y - grassH);
+            }
+            ctx.stroke();
+        } else {
+            ctx.fillStyle = colors.platformTop;
+            ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
+            ctx.strokeStyle = colors.platformSide;
+            ctx.lineWidth = 2;
+            ctx.strokeRect(plat.x, plat.y, plat.width, plat.height);
+            
+            ctx.beginPath();
+            ctx.strokeStyle = 'rgba(0,0,0,0.15)';
+            ctx.lineWidth = 1;
+            for (let j = 4; j < plat.height; j += 6) {
+                ctx.moveTo(plat.x + 2, plat.y + j);
+                ctx.lineTo(plat.x + plat.width - 2, plat.y + j);
+            }
+            ctx.stroke();
+        }
+    }
+}
+
 function drawGameObjects(ctx, camera, platforms, decorations, enemies, coins, items, goal, player) {
     ctx.save();
     ctx.translate(-Math.floor(camera.x), 0);
@@ -100,20 +136,7 @@ function drawGameObjects(ctx, camera, platforms, decorations, enemies, coins, it
         }
     }
 
-    // Platforms
-    for (const plat of platforms) {
-        if (plat.type === 'ground') {
-            ctx.fillStyle = colors.ground;
-            ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
-            ctx.fillStyle = colors.grass;
-            ctx.fillRect(plat.x, plat.y, plat.width, 10);
-        } else {
-            ctx.fillStyle = colors.platformTop;
-            ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
-            ctx.strokeStyle = colors.platformSide;
-            ctx.strokeRect(plat.x, plat.y, plat.width, plat.height);
-        }
-    }
+    drawPlatforms(ctx, platforms);
 
     // Enemies
     for (const en of enemies) {
@@ -128,6 +151,8 @@ function drawGameObjects(ctx, camera, platforms, decorations, enemies, coins, it
             ctx.beginPath();
             ctx.arc(coin.x + 10, coin.y + 10, 8, 0, Math.PI * 2);
             ctx.fill();
+            ctx.strokeStyle = '#B8860B';
+            ctx.stroke();
         }
     }
 
@@ -165,37 +190,64 @@ function drawGameObjects(ctx, camera, platforms, decorations, enemies, coins, it
     ctx.restore();
 }
 
-function drawUI(ctx, canvas, player, currentLevelIndex, levelTimer, stats, goal, camera, gameState) {
+function drawUI(ctx, canvas, player, currentLevelIndex, levelTimer, stats, goal, camera, gameState, leaderboard) {
     if (gameState === 'START') {
-        ctx.fillStyle = 'rgba(0,0,0,0.7)';
+        ctx.fillStyle = colors.sky;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
         ctx.fillStyle = 'white';
         ctx.textAlign = 'center';
         ctx.font = 'bold 48px Arial';
-        ctx.fillText('SUPER PLATFORMER', canvas.width/2, canvas.height/2 - 50);
+        ctx.fillText('SUPER PLATFORMER', canvas.width/2, canvas.height/2 - 120);
+        
         ctx.font = '24px Arial';
-        ctx.fillText('Appuyez sur ESPACE pour commencer', canvas.width/2, canvas.height/2 + 20);
+        ctx.fillText('ESPACE pour commencer', canvas.width/2, canvas.height/2 - 40);
+        
+        if (leaderboard && leaderboard.length > 0) {
+            ctx.font = '20px Arial';
+            ctx.fillText('LEADERBOARD', canvas.width/2, canvas.height/2 + 20);
+            ctx.font = '16px Arial';
+            leaderboard.forEach((entry, i) => {
+                ctx.fillText(`${i+1}. ${entry.score} pièces (${entry.date})`, canvas.width/2, canvas.height/2 + 50 + (i * 20));
+            });
+        }
         return;
     }
 
     // HUD
     ctx.textAlign = 'left';
-    ctx.fillStyle = 'rgba(0,0,0,0.5)';
-    ctx.fillRect(10, 10, 200, 120);
+    ctx.fillStyle = 'rgba(0,0,0,0.7)';
+    ctx.fillRect(5, 5, 220, 140);
     ctx.fillStyle = 'white';
     ctx.font = '14px monospace';
-    ctx.fillText(`FPS: ${stats.fps}`, 20, 30);
-    ctx.fillText(`Niveau: ${currentLevelIndex + 1}`, 20, 50);
-    ctx.fillText(`Temps: ${levelTimer}s`, 20, 70);
-    ctx.fillText(`PV: ${player.hp}/${player.maxHp}`, 20, 90);
-    ctx.fillText(`Pièces: ${player.totalCoins}`, 20, 110);
+    ctx.fillText(`FPS: ${stats.fps}`, 15, 25);
+    ctx.fillText(`Niveau: ${currentLevelIndex + 1}`, 15, 45);
+    ctx.fillText(`Temps: ${levelTimer}s`, 15, 60);
+    ctx.fillText(`PV: ${player.hp}/${player.maxHp}`, 15, 80);
+    ctx.fillText(`Pièces (Total): ${player.totalCoins}`, 15, 100);
+    ctx.fillText(`Pièces (Niveau): ${player.levelCoins}`, 15, 120);
 
     // Progress Bar
-    const progress = Math.min(player.x / 1500, 1); // Simplifié
-    ctx.fillStyle = 'gray';
-    ctx.fillRect(20, 120, 180, 5);
+    const progress = Math.min(player.x / 1500, 1);
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+    ctx.fillRect(15, 130, 200, 10);
     ctx.fillStyle = '#00FF00';
-    ctx.fillRect(20, 120, 180 * progress, 5);
+    ctx.fillRect(15, 130, 200 * progress, 10);
+
+    // Goal Arrow
+    if (gameState === 'PLAYING' && player.alive && !goal.reached) {
+        const dx = goal.x - player.x;
+        const dy = goal.y - player.y;
+        if (Math.sqrt(dx*dx + dy*dy) > 400) {
+            const angle = Math.atan2(dy, dx);
+            ctx.save();
+            ctx.translate(player.x - camera.x + 15 + Math.cos(angle)*60, player.y + 15 + Math.sin(angle)*60);
+            ctx.rotate(angle);
+            ctx.fillStyle = 'rgba(255, 255, 0, 0.7)';
+            ctx.beginPath(); ctx.moveTo(10, 0); ctx.lineTo(-5, -7); ctx.lineTo(-5, 7); ctx.closePath(); ctx.fill();
+            ctx.restore();
+        }
+    }
 
     if (gameState === 'GAMEOVER') {
         ctx.fillStyle = 'rgba(255,0,0,0.4)';

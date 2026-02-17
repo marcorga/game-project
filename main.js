@@ -196,10 +196,11 @@ function killPlayer() {
 function loop() {
     update();
     drawBackground(ctx, canvas, camera, clouds, mountains);
-    drawGameObjects(ctx, camera, levels[currentLevelIndex].platforms, decorations, enemies, coins, items, goal, player);
-    drawUI(ctx, canvas, player, currentLevelIndex, levelTimer, stats, goal, camera, gameState);
+    drawGameObjects(ctx, camera, platforms, decorations, enemies, coins, items, goal, player);
+    drawUI(ctx, canvas, player, currentLevelIndex, levelTimer, stats, goal, camera, gameState, leaderboard);
     requestAnimationFrame(loop);
 }
 
-initLevel(0);
+const startLevelIndex = loadGame(player);
+initLevel(startLevelIndex);
 loop();
