@@ -731,6 +731,36 @@ function draw() {
     ctx.strokeStyle = 'white';
     ctx.lineWidth = 1;
     ctx.strokeRect(barX, barY, barWidth, barHeight);
+
+    // Expert Creative: Goal Directional Arrow
+    if (gameState === 'PLAYING' && player.alive && !goal.reached) {
+        const dx = goal.x - player.x;
+        const dy = goal.y - player.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        
+        // N'afficher la flèche que si le but est loin (> 400px)
+        if (dist > 400) {
+            const angle = Math.atan2(dy, dx);
+            const arrowDist = 60; // Distance de l'arrow par rapport au centre du joueur sur l'écran
+            const screenX = player.x - camera.x + player.width / 2;
+            const screenY = player.y + player.height / 2;
+            
+            const ax = screenX + Math.cos(angle) * arrowDist;
+            const ay = screenY + Math.sin(angle) * arrowDist;
+            
+            ctx.save();
+            ctx.translate(ax, ay);
+            ctx.rotate(angle);
+            ctx.fillStyle = 'rgba(255, 255, 0, 0.7)';
+            ctx.beginPath();
+            ctx.moveTo(10, 0);
+            ctx.lineTo(-5, -7);
+            ctx.lineTo(-5, 7);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+        }
+    }
 }
 
 function loop() {
