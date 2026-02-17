@@ -223,7 +223,9 @@ const colors = {
     grass: '#2d5a27',
     sky: '#87CEEB',
     dust: '#FFF',
-    coin: '#FFD700'
+    coin: '#FFD700',
+    platformSide: '#5D2E0C',
+    platformTop: '#8B4513'
 };
 
 const keys = {};
@@ -388,15 +390,41 @@ function draw() {
 
     for (const plat of platforms) {
         if (plat.type === 'ground') {
+            // Sol avec texture de terre et herbe détaillée
             ctx.fillStyle = colors.ground;
             ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
             ctx.fillStyle = colors.grass;
             ctx.fillRect(plat.x, plat.y, plat.width, 10);
+            
+            // Petits brins d'herbe aléatoires
+            ctx.beginPath();
+            ctx.strokeStyle = colors.grass;
+            ctx.lineWidth = 2;
+            for (let i = 0; i < plat.width; i += 15) {
+                const grassH = 5 + Math.random() * 5;
+                ctx.moveTo(plat.x + i, plat.y);
+                ctx.lineTo(plat.x + i + (Math.random() - 0.5) * 5, plat.y - grassH);
+            }
+            ctx.stroke();
         } else {
-            ctx.fillStyle = '#8B4513';
+            // Plateformes volantes avec "veines" et ombres
+            ctx.fillStyle = colors.platformTop;
             ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
-            ctx.strokeStyle = '#5D2E0C';
+            
+            // Bordure
+            ctx.strokeStyle = colors.platformSide;
+            ctx.lineWidth = 2;
             ctx.strokeRect(plat.x, plat.y, plat.width, plat.height);
+            
+            // Texture interne (lignes horizontales subtiles)
+            ctx.beginPath();
+            ctx.strokeStyle = 'rgba(0,0,0,0.15)';
+            ctx.lineWidth = 1;
+            for (let j = 4; j < plat.height; j += 6) {
+                ctx.moveTo(plat.x + 2, plat.y + j);
+                ctx.lineTo(plat.x + plat.width - 2, plat.y + j);
+            }
+            ctx.stroke();
         }
     }
 
