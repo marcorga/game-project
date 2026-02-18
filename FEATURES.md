@@ -7,7 +7,7 @@ Ce document liste l'état fonctionnel du jeu à un instant T.
 - 🟢 **Déplacements :** Gauche/Droite avec friction et inertie.
 - 🟢 **Saut :** Système de saut avec particule au décollage.
 - 🟢 **Squash & Stretch :** Déformation visuelle du personnage selon la vitesse.
-- 🟢 **Collisions :** Gestion des plateformes et du sol (Fix des coins en cours).
+- 🟢 **Collisions :** Gestion des plateformes et du sol (Fix #CornerGlitch résolu).
 - 🟢 **Plateformes Mouvantes :** Plateformes horizontales et verticales transportant le joueur.
 
 ## 🎮 Gameplay & Progression
@@ -21,7 +21,8 @@ Ce document liste l'état fonctionnel du jeu à un instant T.
 - 🟢 **Parallaxe :** Nuages (vitesse lente) et Montagnes (vitesse très lente).
 - 🟢 **Décors :** Arbres et buissons générés aléatoirement sur les plateformes.
 - 🟢 **Particules :** Effets de poussière (saut/atterrissage) et collecte.
-- ⚪ **Météo :** Système de vent et pluie (Prévu).
+- 🟢 **Météo :** Système de vent dynamique influençant le décor (arbres, buissons, herbe).
+- ⚪ **Pluie :** Particules et effets de surface (Prévu).
 
 ## 🎵 Audio
 - 🟢 **Musique Procédurale :** Changement de gamme (Majeure/Mineure) selon le niveau.

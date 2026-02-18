@@ -1,5 +1,11 @@
-# HEARTBEAT.md
+# HEARTBEAT.md - Mandat d'Autonomie de l'Escouade
 
-# Keep this file empty (or with only comments) to skip heartbeat API calls.
+## ⚡ Règle d'Initiative
+L'escouade est autorisée à avancer seule. Si ce fichier ne contient pas de tâche urgente ci-dessous, l'agent de maintenance doit :
+1. Lire `PROGRESSION.md`.
+2. Identifier l'objectif prioritaire n°1 (actuellement : **ENGINE - Fix #CornerGlitch**).
+3. Solliciter l'Expert concerné pour lancer le cycle de développement.
+4. Mettre à jour la progression une fois terminé.
 
-# Add tasks below when you want the agent to check something periodically.
+## 📌 Tâches Urgentes (Utilisateur)
+(Aucune tâche urgente pour le moment. L'escouade suit le plan de progression autonome.)

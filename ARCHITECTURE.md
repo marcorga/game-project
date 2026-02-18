@@ -7,6 +7,7 @@ L'architecture repose sur un orchestrateur central (`main.js`) qui délègue cha
 | :--- | :--- | :--- |
 | `player.js` | ENGINE | État et méthodes du joueur |
 | `physics.js` | ENGINE | Moteur de collision et gravité |
+| `platforms.js` | ENGINE / LOGIC | (NOUVEAU) Gestion des plateformes mobiles |
 | `render.js` | VFX | Dessin, Particules et Parallaxe |
 | `audio.js` | VFX | Musique procédurale et SFX |
 | `entities.js` | LOGIC | Ennemis, Items, Goal |
@@ -18,13 +19,14 @@ L'architecture repose sur un orchestrateur central (`main.js`) qui délègue cha
 1. `main.js` importe les modules.
 2. `ui.js` capture les inputs.
 3. `physics.js` calcule les nouvelles positions.
-4. `render.js` dessine l'état final.
+4. `platforms.js` met à jour les plateformes et influence le joueur.
+5. `render.js` dessine l'état final.
 
 ## 🎯 Context Mapping (Périmètres Experts)
-*   **expert-engine** : `physics.js`, `player.js`
+*   **expert-engine** : `physics.js`, `player.js`, `platforms.js`
 *   **expert-vfx** : `render.js`
 *   **expert-audio** : `audio.js`
-*   **expert-logic** : `entities.js`, `levels.js`
+*   **expert-logic** : `entities.js`, `levels.js`, `platforms.js`
 *   **expert-ui** : `ui.js`, `storage.js`
 *   **expert-chronicle** : `ARCHITECTURE.md`, `PROGRESSION.md`, `PROTOCOL.md`, `FEATURES.md`
 *   **expert-qa** : (Tout le projet en lecture seule pour tests)

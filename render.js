@@ -4,6 +4,8 @@ const clouds = [];
 const mountains = [];
 const decorations = [];
 const MAX_PARTICLES = 200;
+let windTimer = 0;
+const windSpeed = 0.002;
 
 const colors = {
     ground: '#4a2c2a',
@@ -81,6 +83,7 @@ function initVisuals(level, canvasHeight) {
 }
 
 function updateVisuals(levelWidth) {
+    windTimer += windSpeed;
     // Update Clouds
     for (const cloud of clouds) {
         cloud.x -= cloud.speed;
@@ -137,8 +140,9 @@ function drawPlatforms(ctx, platforms) {
             ctx.lineWidth = 2;
             for (let i = 0; i < plat.width; i += 15) {
                 const grassH = 5 + Math.random() * 5;
+                const grassWind = Math.sin(windTimer * 1000 + (plat.x + i) * 0.1) * 3;
                 ctx.moveTo(plat.x + i, plat.y);
-                ctx.lineTo(plat.x + i + (Math.random() - 0.5) * 5, plat.y - grassH);
+                ctx.lineTo(plat.x + i + (Math.random() - 0.5) * 5 + grassWind, plat.y - grassH);
             }
             ctx.stroke();
         } else {
@@ -172,21 +176,22 @@ function drawGameObjects(ctx, camera, platforms, decorations, enemies, coins, it
 
     // Decorations
     for (const dec of decorations) {
+        const windOffset = Math.sin(windTimer * 1000 + dec.x * 0.05) * 2;
         if (dec.type === 'bush') {
             ctx.fillStyle = '#1e3d1a';
             ctx.beginPath();
-            ctx.arc(dec.x, dec.y, dec.size * 0.4, Math.PI, 0);
-            ctx.arc(dec.x + dec.size * 0.4, dec.y, dec.size * 0.5, Math.PI, 0);
-            ctx.arc(dec.x + dec.size * 0.8, dec.y, dec.size * 0.4, Math.PI, 0);
+            ctx.arc(dec.x + windOffset * 0.5, dec.y, dec.size * 0.4, Math.PI, 0);
+            ctx.arc(dec.x + dec.size * 0.4 + windOffset, dec.y, dec.size * 0.5, Math.PI, 0);
+            ctx.arc(dec.x + dec.size * 0.8 + windOffset * 0.5, dec.y, dec.size * 0.4, Math.PI, 0);
             ctx.fill();
         } else if (dec.type === 'tree') {
             ctx.fillStyle = '#3d2616';
             ctx.fillRect(dec.x + dec.size * 0.3, dec.y - dec.size, dec.size * 0.2, dec.size);
             ctx.fillStyle = '#2d5a27';
             ctx.beginPath();
-            ctx.moveTo(dec.x, dec.y - dec.size * 0.8);
-            ctx.lineTo(dec.x + dec.size * 0.4, dec.y - dec.size * 1.8);
-            ctx.lineTo(dec.x + dec.size * 0.8, dec.y - dec.size * 0.8);
+            ctx.moveTo(dec.x + windOffset, dec.y - dec.size * 0.8);
+            ctx.lineTo(dec.x + dec.size * 0.4 + windOffset * 1.5, dec.y - dec.size * 1.8);
+            ctx.lineTo(dec.x + dec.size * 0.8 + windOffset, dec.y - dec.size * 0.8);
             ctx.fill();
         }
     }

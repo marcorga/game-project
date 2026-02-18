@@ -46,25 +46,47 @@ function updatePhysics(player, platforms, wasGrounded) {
         if (player.x < plat.x + plat.width && player.x + player.width > plat.x &&
             player.y < plat.y + plat.height && player.y + player.height > plat.y) {
             
-            // Collision par le haut (le joueur atterrit sur la plateforme)
-            const platVy = plat.moving ? Math.abs(plat.vy) : 0;
-            if (player.vy > 0 && (player.y + player.height - player.vy) <= plat.y + platVy) {
-                player.y = plat.y - player.height;
-                player.vy = 0;
-                player.grounded = true;
-                player.onPlatform = plat;
-                
-                if (!wasGrounded) {
-                    if (typeof createParticles === 'function') {
-                        createParticles(player.x + player.width/2, player.y + player.height, '#FFF', 5);
+            // Calculer les profondeurs de pénétration
+            const overlapX1 = (player.x + player.width) - plat.x;
+            const overlapX2 = (plat.x + plat.width) - player.x;
+            const overlapY1 = (player.y + player.height) - plat.y;
+            const overlapY2 = (plat.y + plat.height) - player.y;
+
+            const minOverlapX = Math.min(overlapX1, overlapX2);
+            const minOverlapY = Math.min(overlapY1, overlapY2);
+
+            // Résoudre selon l'axe de plus petite pénétration (standard AABB)
+            if (minOverlapY < minOverlapX) {
+                // Collision Verticale
+                if (overlapY1 < overlapY2) {
+                    // Collision par le haut (Atterrissage)
+                    player.y = plat.y - player.height;
+                    player.vy = 0;
+                    player.grounded = true;
+                    player.onPlatform = plat;
+                    
+                    if (!wasGrounded) {
+                        if (typeof createParticles === 'function') {
+                            createParticles(player.x + player.width/2, player.y + player.height, '#FFF', 5);
+                        }
+                        if (player.vy > 5) player.shakeTime = 3;
                     }
-                    if (player.vy > 5) player.shakeTime = 3;
+                } else {
+                    // Collision par le bas (Plafond)
+                    player.y = plat.y + plat.height;
+                    player.vy = 0;
                 }
-            } 
-            // Collision par le bas (le joueur se cogne la tête)
-            else if (player.vy < 0 && (player.y - player.vy) >= (plat.y + plat.height - (plat.moving ? Math.abs(plat.vy) : 0))) {
-                player.y = plat.y + plat.height;
-                player.vy = 0;
+            } else {
+                // Collision Horizontale (Murs)
+                if (overlapX1 < overlapX2) {
+                    // Gauche de la plateforme
+                    player.x = plat.x - player.width;
+                    player.vx = 0;
+                } else {
+                    // Droite de la plateforme
+                    player.x = plat.x + plat.width;
+                    player.vx = 0;
+                }
             }
         }
     }

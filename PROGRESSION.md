@@ -4,6 +4,8 @@
 **Phase actuelle :** Expansion du moteur physique et de la diversité des niveaux.
 
 ### ✅ Travaux Terminés (Expertise)
+- **ENGINE :** Résolution du bug des collisions de coins (Fix #CornerGlitch) via l'implémentation d'une résolution AABB robuste (axes de séparation).
+- **VFX :** Ajout de l'effet de vent dynamique sur le feuillage (arbres, buissons et herbe) pour améliorer l'immersion.
 - **ENGINE :** Correction CRITIQUE : Prévention des positions NaN en robustifiant le moteur et les données des niveaux.
 - **ENGINE :** Correction de la régression : le joueur ne passe plus à travers les plateformes statiques.
 - **ENGINE :** Implémentation des plateformes mouvantes (cycle complet).
@@ -13,10 +15,8 @@
 - **LOGIC :** Centralisation de la gestion des buts et items.
 
 ### 🚀 Objectifs Prioritaires par Expert
-1. **ENGINE :** Résoudre le bug potentiel des collisions de coins (Fix #CornerGlitch).
-2. **VFX :** Ajouter l'effet de vent sur le feuillage (Ambiance).
-3. **LOGIC :** Créer un nouveau type d'ennemi (Volant ?).
-4. **UI :** Ajouter un indicateur visuel de combo ou multiplicateur.
+1. **LOGIC :** Créer un nouveau type d'ennemi (Volant ?).
+2. **UI :** Ajouter un indicateur visuel de combo ou multiplicateur.
 
 ## 🧠 Note du CHRONIQUEUR
 Le projet est prêt pour une scalabilité massive. Chaque nouveau fichier `.js` doit désormais être assigné à un Expert existant ou provoquer la création d'un nouveau profil.
