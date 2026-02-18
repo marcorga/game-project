@@ -9,6 +9,7 @@ const player = {
 const enemies = [];
 const coins = [];
 const items = [];
+let platforms = [];
 
 function updateEnemies(player, enemies, particles, sfx, takeDamage, killPlayer) {
     for (let i = enemies.length - 1; i >= 0; i--) {
