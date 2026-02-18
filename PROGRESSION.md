@@ -1,9 +1,10 @@
 # PROGRESSION.md - Suivi par Experts
 
 ## 📅 État au 2026-02-18
-**Phase actuelle :** Post-Modularisation Complète.
+**Phase actuelle :** Expansion du moteur physique et de la diversité des niveaux.
 
 ### ✅ Travaux Terminés (Expertise)
+- **ENGINE :** Implémentation des plateformes mouvantes (cycle complet).
 - **ENGINE :** Refactoring du joueur terminé.
 - **VFX :** Isolation du système de particules et parallaxe.
 - **UI :** Extraction totale des inputs et du HUD.
