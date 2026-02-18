@@ -26,6 +26,7 @@ function initLevel(index) {
     goal.reached = false;
     enemies.length = 0; level.enemies.forEach(en => enemies.push({...en}));
     coins.length = 0; level.coins.forEach(c => coins.push({...c, width: 20, height: 20, collected: false}));
+    platforms.length = 0; level.platforms.forEach(p => platforms.push({...p}));
     items.length = 0;
     if (level.items) {
         level.items.forEach(it => {
