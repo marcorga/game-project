@@ -106,23 +106,12 @@ function update() {
     updatePhysics(player, platforms, wasGrounded);
     updateEnemies(player, enemies, particles, sfx, killPlayer);
     updateCoins(player, coins, createParticles, sfx);
-    updateItems();
+    updateItems(player, items, createParticles, sfx);
     updateParticles();
     stats.particleCount = particles.length;
 
-    // Goal Collision
-    if (player.x < goal.x + goal.width &&
-        player.x + player.width > goal.x &&
-        player.y < goal.y + goal.height &&
-        player.y + player.height > goal.y) {
-        goal.reached = true;
-        player.totalWins++;
-        player.shakeTime = 20;
-        createParticles(goal.x + goal.width/2, goal.y + goal.height/2, '#FFFF00', 50);
-        sfx.win();
-        updateLeaderboard(player.levelCoins);
-        saveGame(player, currentLevelIndex);
-    }
+    // Goal Collision (Modular)
+    checkGoal(player, goal, createParticles, sfx, updateLeaderboard, saveGame, currentLevelIndex);
 
     if (player.shakeTime > 0) player.shakeTime--;
 
@@ -134,25 +123,6 @@ function update() {
     if (camera.x > levels[currentLevelIndex].width - canvas.width) camera.x = levels[currentLevelIndex].width - canvas.width;
 
     if (player.y > canvas.height + 100) player.kill();
-}
-
-function updateItems() {
-    for (let i = items.length - 1; i >= 0; i--) {
-        const item = items[i];
-        item.bob += 0.1;
-        if (!item.collected &&
-            player.x < item.x + item.width &&
-            player.x + player.width > item.x &&
-            player.y < item.y + item.height + Math.sin(item.bob) * 5 &&
-            player.y + player.height > item.y + Math.sin(item.bob) * 5) {
-            item.collected = true;
-            if (item.type === 'heart') {
-                player.hp = Math.min(player.hp + 1, player.maxHp);
-                createParticles(item.x + item.width/2, item.y + item.height/2, '#FF0000', 15);
-                sfx.hit();
-            }
-        }
-    }
 }
 
 function killPlayer() {

@@ -41,3 +41,42 @@ function updateCoins(player, coins, createParticles, sfx) {
         }
     }
 }
+
+function updateItems(player, items, createParticles, sfx) {
+    for (let i = items.length - 1; i >= 0; i--) {
+        const item = items[i];
+        item.bob += 0.1;
+        if (!item.collected &&
+            player.x < item.x + item.width &&
+            player.x + player.width > item.x &&
+            player.y < item.y + item.height + Math.sin(item.bob) * 5 &&
+            player.y + player.height > item.y + Math.sin(item.bob) * 5) {
+            
+            item.collected = true;
+            if (item.type === 'heart') {
+                player.hp = Math.min(player.hp + 1, player.maxHp);
+                if (typeof createParticles === 'function') createParticles(item.x + item.width/2, item.y + item.height/2, '#FF0000', 15);
+                if (typeof sfx !== 'undefined') sfx.hit();
+            }
+        }
+    }
+}
+
+function checkGoal(player, goal, createParticles, sfx, leaderboardUpdate, saveGame, currentLevelIndex) {
+    if (player.x < goal.x + goal.width &&
+        player.x + player.width > goal.x &&
+        player.y < goal.y + goal.height &&
+        player.y + player.height > goal.y) {
+        
+        goal.reached = true;
+        player.totalWins++;
+        player.shakeTime = 20;
+        if (typeof createParticles === 'function') createParticles(goal.x + goal.width/2, goal.y + goal.height/2, '#FFFF00', 50);
+        if (typeof sfx !== 'undefined') sfx.win();
+        
+        if (typeof leaderboardUpdate === 'function') leaderboardUpdate(player.levelCoins);
+        if (typeof saveGame === 'function') saveGame(player, currentLevelIndex);
+        return true;
+    }
+    return false;
+}
