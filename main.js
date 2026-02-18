@@ -136,6 +136,7 @@ function update() {
     updateCoins(player, coins, createParticles, sfx);
     updateItems();
     updateParticles();
+    stats.particleCount = particles.length;
 
     // Goal Collision
     if (player.x < goal.x + goal.width &&

@@ -179,12 +179,34 @@ function drawGameObjects(ctx, camera, platforms, decorations, enemies, coins, it
 
     // Player
     if (player.alive && (player.invincible % 4 < 2)) {
+        ctx.save();
+        
+        // Squash & Stretch Logic
+        let stretchX = 1 + Math.abs(player.vx) * 0.05 - Math.abs(player.vy) * 0.02;
+        let stretchY = 1 - Math.abs(player.vx) * 0.02 + Math.abs(player.vy) * 0.05;
+        
+        // Limiter le stretch
+        stretchX = Math.max(0.7, Math.min(1.3, stretchX));
+        stretchY = Math.max(0.7, Math.min(1.3, stretchY));
+
+        ctx.translate(player.x + player.width / 2, player.y + player.height);
+        
+        // Inclinaison selon la vitesse horizontale
+        const tilt = player.vx * 0.05;
+        ctx.rotate(tilt);
+        
+        ctx.scale(stretchX, stretchY);
+
         ctx.fillStyle = player.color;
-        ctx.fillRect(player.x, player.y, player.width, player.height);
+        ctx.fillRect(-player.width / 2, -player.height, player.width, player.height);
+
+        // Yeux
         ctx.fillStyle = player.eyeColor;
-        const eyeOffset = player.vx >= 0 ? 18 : 5;
-        ctx.fillRect(player.x + eyeOffset, player.y + 8, 5, 5);
-        ctx.fillRect(player.x + eyeOffset + 4, player.y + 8, 5, 5);
+        const eyeOffset = player.vx >= 0 ? 5 : -15;
+        ctx.fillRect(eyeOffset, -player.height + 8, 5, 5);
+        ctx.fillRect(eyeOffset + 7, -player.height + 8, 5, 5);
+
+        ctx.restore();
     }
 
     ctx.restore();
@@ -220,7 +242,7 @@ function drawUI(ctx, canvas, player, currentLevelIndex, levelTimer, stats, goal,
     ctx.fillRect(5, 5, 220, 140);
     ctx.fillStyle = 'white';
     ctx.font = '14px monospace';
-    ctx.fillText(`FPS: ${stats.fps}`, 15, 25);
+    ctx.fillText(`FPS: ${stats.fps} | P: ${stats.particleCount || 0}`, 15, 25);
     ctx.fillText(`Niveau: ${currentLevelIndex + 1}`, 15, 45);
     ctx.fillText(`Temps: ${levelTimer}s`, 15, 60);
     ctx.fillText(`PV: ${player.hp}/${player.maxHp}`, 15, 80);
