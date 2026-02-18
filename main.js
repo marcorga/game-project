@@ -200,9 +200,23 @@ function killPlayer() {
 
 function loop() {
     update();
-    drawBackground(ctx, canvas, camera, clouds, mountains);
-    drawGameObjects(ctx, camera, platforms, decorations, enemies, coins, items, goal, player);
+
+    let shakeX = 0;
+    let shakeY = 0;
+    if (player.shakeTime > 0) {
+        shakeX = (Math.random() - 0.5) * player.shakeTime;
+        shakeY = (Math.random() - 0.5) * player.shakeTime;
+    }
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Le background et le monde subissent le shake et la translation de caméra
+    drawBackground(ctx, canvas, camera, clouds, mountains, shakeX, shakeY);
+    drawGameObjects(ctx, camera, platforms, decorations, enemies, coins, items, goal, player, shakeX, shakeY);
+    
+    // L'UI est fixe à l'écran (pas de translation, pas de shake)
     drawUI(ctx, canvas, player, currentLevelIndex, levelTimer, stats, goal, camera, gameState, leaderboard);
+    
     requestAnimationFrame(loop);
 }
 

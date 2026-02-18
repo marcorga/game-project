@@ -40,10 +40,14 @@ function updateParticles() {
     }
 }
 
-function drawBackground(ctx, canvas, camera, clouds, mountains) {
+function drawBackground(ctx, canvas, camera, clouds, mountains, shakeX = 0, shakeY = 0) {
     ctx.fillStyle = colors.sky;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
+    ctx.save();
+    ctx.translate(shakeX, shakeY);
+
+    // Mountains Parallax (0.1)
     ctx.save();
     ctx.translate(-Math.floor(camera.x * 0.1), 0);
     for (const mt of mountains) {
@@ -56,6 +60,7 @@ function drawBackground(ctx, canvas, camera, clouds, mountains) {
     }
     ctx.restore();
 
+    // Clouds Parallax (0.3)
     ctx.save();
     ctx.translate(-Math.floor(camera.x * 0.3), 0);
     ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
@@ -66,6 +71,8 @@ function drawBackground(ctx, canvas, camera, clouds, mountains) {
         ctx.arc(cloud.x + cloud.size * 0.6, cloud.y, cloud.size * 0.5, 0, Math.PI * 2);
         ctx.fill();
     }
+    ctx.restore();
+
     ctx.restore();
 }
 
@@ -105,9 +112,9 @@ function drawPlatforms(ctx, platforms) {
     }
 }
 
-function drawGameObjects(ctx, camera, platforms, decorations, enemies, coins, items, goal, player) {
+function drawGameObjects(ctx, camera, platforms, decorations, enemies, coins, items, goal, player, shakeX = 0, shakeY = 0) {
     ctx.save();
-    ctx.translate(-Math.floor(camera.x), 0);
+    ctx.translate(-Math.floor(camera.x) + shakeX, shakeY);
 
     // Goal
     ctx.fillStyle = goal.color;
@@ -178,6 +185,12 @@ function drawGameObjects(ctx, camera, platforms, decorations, enemies, coins, it
     ctx.globalAlpha = 1.0;
 
     // Player
+    drawPlayer(ctx, player);
+
+    ctx.restore();
+}
+
+function drawPlayer(ctx, player) {
     if (player.alive && (player.invincible % 4 < 2)) {
         ctx.save();
         
@@ -208,8 +221,6 @@ function drawGameObjects(ctx, camera, platforms, decorations, enemies, coins, it
 
         ctx.restore();
     }
-
-    ctx.restore();
 }
 
 function drawUI(ctx, canvas, player, currentLevelIndex, levelTimer, stats, goal, camera, gameState, leaderboard) {
