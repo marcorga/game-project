@@ -26,6 +26,6 @@ L'architecture repose sur un orchestrateur central (`main.js`) qui délègue cha
 *   **expert-audio** : `audio.js`
 *   **expert-logic** : `entities.js`, `levels.js`
 *   **expert-ui** : `ui.js`, `storage.js`
-*   **expert-chronicle** : `ARCHITECTURE.md`, `PROGRESSION.md`, `PROTOCOL.md`
+*   **expert-chronicle** : `ARCHITECTURE.md`, `PROGRESSION.md`, `PROTOCOL.md`, `FEATURES.md`
 *   **expert-qa** : (Tout le projet en lecture seule pour tests)
 *   **expert-creative** : `levels.js`
