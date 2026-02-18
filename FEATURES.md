@@ -9,6 +9,7 @@ Ce document liste l'état fonctionnel du jeu à un instant T.
 - 🟢 **Squash & Stretch :** Déformation visuelle du personnage selon la vitesse.
 - 🟢 **Collisions :** Gestion des plateformes et du sol (Fix #CornerGlitch résolu).
 - 🟢 **Plateformes Mouvantes :** Plateformes horizontales et verticales transportant le joueur.
+- 🟢 **Ennemi Volant (Flyer) :** Ennemi avec patrouille horizontale et mouvement sinusoïdal vertical.
 
 ## 🎮 Gameplay & Progression
 - 🟢 **Système de Vie :** HP (3 max), invincibilité temporaire après dégât.

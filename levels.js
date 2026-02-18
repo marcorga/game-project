@@ -41,7 +41,8 @@ const levels = [
             { x: 200, y: 520, width: 30, height: 30, color: '#FF4444', vx: 1.5, range: 80, startX: 200 },
             { x: 800, y: 520, width: 30, height: 30, color: '#FF4444', vx: 3, range: 150, startX: 800 },
             { x: 1400, y: 520, width: 30, height: 30, color: '#FF4444', vx: 2.5, range: 100, startX: 1400 },
-            { x: 750, y: 220, width: 30, height: 30, color: '#FF4444', vx: 1.5, range: 40, startX: 750 }
+            { x: 750, y: 220, width: 30, height: 30, color: '#FF4444', vx: 1.5, range: 40, startX: 750 },
+            { type: 'flyer', x: 400, y: 300, startY: 300, width: 30, height: 20, color: '#AA44FF', vx: 2, range: 150, startX: 400, amplitude: 50, speedY: 0.05 }
         ],
         coins: [
             { x: 150, y: 400 }, { x: 350, y: 300 }, { x: 550, y: 200 }, { x: 825, y: 200 }, { x: 1500, y: 300 }

@@ -8,14 +8,24 @@ let platforms = [];
 function updateEnemies(player, enemies, particles, sfx, killPlayer) {
     for (let i = enemies.length - 1; i >= 0; i--) {
         const en = enemies[i];
-        en.x += en.vx;
-        if (Math.abs(en.x - en.startX) > en.range) en.vx *= -1;
+        
+        if (en.type === 'flyer') {
+            en.x += en.vx;
+            if (Math.abs(en.x - en.startX) > en.range) en.vx *= -1;
+            
+            // Mouvement sinusoïdal vertical
+            en.angle = (en.angle || 0) + (en.speedY || 0.05);
+            en.y = en.startY + Math.sin(en.angle) * (en.amplitude || 30);
+        } else {
+            en.x += en.vx;
+            if (Math.abs(en.x - en.startX) > en.range) en.vx *= -1;
+        }
 
         if (player.alive && player.invincible <= 0 &&
             player.x < en.x + en.width && player.x + player.width > en.x &&
             player.y < en.y + en.height && player.y + player.height > en.y) {
             
-            if (player.vy > 0 && player.y + player.height - player.vy <= en.y) {
+            if (en.type !== 'flyer' && player.vy > 0 && player.y + player.height - player.vy <= en.y) {
                 if (typeof createParticles === 'function') createParticles(en.x + en.width/2, en.y + en.height/2, en.color, 15);
                 enemies.splice(i, 1);
                 player.vy = player.jumpStrength * 0.8;

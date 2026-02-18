@@ -13,10 +13,10 @@
 - **VFX :** Isolation du système de particules et parallaxe.
 - **UI :** Extraction totale des inputs et du HUD.
 - **LOGIC :** Centralisation de la gestion des buts et items.
+- **LOGIC :** Implémentation de l'Ennemi Volant (flyer) avec mouvement sinusoïdal et patrouille.
 
 ### 🚀 Objectifs Prioritaires par Expert
-1. **LOGIC :** Créer un nouveau type d'ennemi (Volant ?).
-2. **UI :** Ajouter un indicateur visuel de combo ou multiplicateur.
+1. **UI :** Ajouter un indicateur visuel de combo ou multiplicateur.
 
 ## 🧠 Note du CHRONIQUEUR
 Le projet est prêt pour une scalabilité massive. Chaque nouveau fichier `.js` doit désormais être assigné à un Expert existant ou provoquer la création d'un nouveau profil.
