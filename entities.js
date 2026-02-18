@@ -1,17 +1,11 @@
-// entities.js - Joueur, Ennemis et Objets
-const player = {
-    x: 50, y: 50, width: 30, height: 30, color: '#FFD700', eyeColor: '#000',
-    vx: 0, vy: 0, speed: 5, jumpStrength: -10, grounded: false,
-    jumpPressed: false, alive: true, hp: 3, maxHp: 3, invincible: 0,
-    totalWins: 0, totalCoins: 0, levelCoins: 0, shakeTime: 0
-};
+// entities.js - Ennemis et Objets (Le Joueur a son propre module player.js)
 
 const enemies = [];
 const coins = [];
 const items = [];
 let platforms = [];
 
-function updateEnemies(player, enemies, particles, sfx, takeDamage, killPlayer) {
+function updateEnemies(player, enemies, particles, sfx, killPlayer) {
     for (let i = enemies.length - 1; i >= 0; i--) {
         const en = enemies[i];
         en.x += en.vx;
@@ -27,7 +21,7 @@ function updateEnemies(player, enemies, particles, sfx, takeDamage, killPlayer) 
                 player.vy = player.jumpStrength * 0.8;
                 player.shakeTime = 5;
             } else {
-                takeDamage();
+                player.takeDamage();
             }
         }
     }
