@@ -4,6 +4,7 @@
 **Phase actuelle :** Expansion du moteur physique et de la diversité des niveaux.
 
 ### ✅ Travaux Terminés (Expertise)
+- **ENGINE :** Correction de la régression : le joueur ne passe plus à travers les plateformes statiques.
 - **ENGINE :** Implémentation des plateformes mouvantes (cycle complet).
 - **ENGINE :** Refactoring du joueur terminé.
 - **VFX :** Isolation du système de particules et parallaxe.
