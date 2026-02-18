@@ -14,6 +14,7 @@ Ce document liste l'état fonctionnel du jeu à un instant T.
 ## 🎮 Gameplay & Progression
 - 🟢 **Système de Vie :** HP (3 max), invincibilité temporaire après dégât.
 - 🟢 **Collectables :** Pièces d'or avec compteur par niveau et total.
+- 🟢 **Combo/Multiplicateur :** Multiplicateur de score (x1, x2, x3...) basé sur les actions rapides (collecte, ennemis vaincus).
 - 🟢 **Items :** Cœurs de soin (Pop-up visuel).
 - 🟢 **Niveaux :** Transition automatique vers le niveau suivant via le drapeau.
 - 🟢 **Leaderboard :** Sauvegarde locale des records de pièces.

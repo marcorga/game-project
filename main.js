@@ -78,6 +78,9 @@ function update() {
     let wasGrounded = player.grounded;
     handlePlayerInput(player, sfx, createParticles);
 
+    const delta = 1/60; // Approximatif ou calculé via performance.now()
+    if (typeof updateCombo === 'function') updateCombo(delta);
+
     updatePhysics(player, platforms, wasGrounded);
     updateEnemies(player, enemies, particles, sfx, killPlayer);
     updateCoins(player, coins, createParticles, sfx);

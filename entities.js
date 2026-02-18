@@ -30,6 +30,7 @@ function updateEnemies(player, enemies, particles, sfx, killPlayer) {
                 enemies.splice(i, 1);
                 player.vy = player.jumpStrength * 0.8;
                 player.shakeTime = 5;
+                if (typeof triggerCombo === 'function') triggerCombo();
             } else {
                 player.takeDamage();
             }
@@ -43,8 +44,10 @@ function updateCoins(player, coins, createParticles, sfx) {
             player.x < coin.x + coin.width && player.x + player.width > coin.x &&
             player.y < coin.y + coin.height && player.y + player.height > coin.y) {
             coin.collected = true;
-            player.levelCoins++;
-            player.totalCoins++;
+            const multiplier = (typeof comboState !== 'undefined') ? comboState.multiplier : 1;
+            player.levelCoins += multiplier;
+            player.totalCoins += multiplier;
+            if (typeof triggerCombo === 'function') triggerCombo();
             if (typeof createParticles === 'function') createParticles(coin.x + coin.width/2, coin.y + coin.height/2, '#FFD700', 10);
             player.shakeTime = 2;
             if (sfx) sfx.coin();

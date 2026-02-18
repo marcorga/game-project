@@ -1,9 +1,41 @@
 // ui.js - Gestion des entrées utilisateur et des interfaces
 const keys = {};
 
+// État du Combo
+const comboState = {
+    count: 0,
+    multiplier: 1,
+    timer: 0,
+    maxTimer: 2.5,
+    visualScale: 1
+};
+
 function initInputs() {
     window.addEventListener('keydown', e => keys[e.code] = true);
     window.addEventListener('keyup', e => keys[e.code] = false);
+}
+
+function updateCombo(delta) {
+    if (comboState.timer > 0) {
+        comboState.timer -= delta;
+        if (comboState.timer <= 0) {
+            comboState.count = 0;
+            comboState.multiplier = 1;
+            comboState.timer = 0;
+        }
+    }
+    // Animation de réduction de l'échelle visuelle
+    if (comboState.visualScale > 1) {
+        comboState.visualScale -= delta * 2;
+        if (comboState.visualScale < 1) comboState.visualScale = 1;
+    }
+}
+
+function triggerCombo() {
+    comboState.count++;
+    comboState.multiplier = 1 + Math.floor(comboState.count / 3); // x1, x1, x2, x2, x2, x3...
+    comboState.timer = comboState.maxTimer;
+    comboState.visualScale = 1.5; // Effet de pop
 }
 
 function handlePlayerInput(player, sfx, createParticles) {
@@ -78,6 +110,23 @@ function drawUI(ctx, canvas, player, currentLevelIndex, levelTimer, stats, goal,
     ctx.fillText(`PV: ${player.hp}/${player.maxHp}`, 15, 80);
     ctx.fillText(`Pièces (Total): ${player.totalCoins}`, 15, 100);
     ctx.fillText(`Pièces (Niveau): ${player.levelCoins}`, 15, 120);
+
+    // Combo Display
+    if (comboState.multiplier > 1) {
+        ctx.save();
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#FFD700';
+        ctx.font = `bold ${Math.floor(20 * comboState.visualScale)}px Arial`;
+        ctx.shadowColor = 'black';
+        ctx.shadowBlur = 4;
+        ctx.fillText(`x${comboState.multiplier} COMBO`, 110, 155);
+        
+        // Timer bar for combo
+        const timerWidth = (comboState.timer / comboState.maxTimer) * 100;
+        ctx.fillStyle = 'rgba(255, 215, 0, 0.5)';
+        ctx.fillRect(60, 165, timerWidth, 5);
+        ctx.restore();
+    }
 
     // Progress Bar
     const progress = Math.min(player.x / 1500, 1);
