@@ -103,6 +103,9 @@ function update() {
 
     if (!player.alive || goal.reached) {
         updateParticles();
+        if (goal.reached && (keys['Enter'] || keys['Space'])) {
+            initLevel(currentLevelIndex + 1);
+        }
         return;
     }
 
