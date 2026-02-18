@@ -4,6 +4,7 @@
 **Phase actuelle :** Expansion du moteur physique et de la diversité des niveaux.
 
 ### ✅ Travaux Terminés (Expertise)
+- **ENGINE :** Correction CRITIQUE : Prévention des positions NaN en robustifiant le moteur et les données des niveaux.
 - **ENGINE :** Correction de la régression : le joueur ne passe plus à travers les plateformes statiques.
 - **ENGINE :** Implémentation des plateformes mouvantes (cycle complet).
 - **ENGINE :** Refactoring du joueur terminé.

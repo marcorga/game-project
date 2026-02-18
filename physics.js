@@ -6,6 +6,14 @@ function updatePhysics(player, platforms, wasGrounded) {
     // 1. Déplacer d'abord les plateformes et ajuster la position du joueur s'il est dessus
     for (const plat of platforms) {
         if (plat.moving) {
+            // Initialisation des propriétés manquantes pour éviter NaN
+            if (plat.vx === undefined) plat.vx = 0;
+            if (plat.vy === undefined) plat.vy = 0;
+            if (plat.startX === undefined) plat.startX = plat.x;
+            if (plat.startY === undefined) plat.startY = plat.y;
+            if (plat.rangeX === undefined) plat.rangeX = 0;
+            if (plat.rangeY === undefined) plat.rangeY = 0;
+
             const oldPlatX = plat.x;
             const oldPlatY = plat.y;
 
@@ -39,7 +47,8 @@ function updatePhysics(player, platforms, wasGrounded) {
             player.y < plat.y + plat.height && player.y + player.height > plat.y) {
             
             // Collision par le haut (le joueur atterrit sur la plateforme)
-            if (player.vy > 0 && (player.y + player.height - player.vy) <= plat.y + Math.abs(plat.vy)) {
+            const platVy = plat.moving ? Math.abs(plat.vy) : 0;
+            if (player.vy > 0 && (player.y + player.height - player.vy) <= plat.y + platVy) {
                 player.y = plat.y - player.height;
                 player.vy = 0;
                 player.grounded = true;
@@ -53,7 +62,7 @@ function updatePhysics(player, platforms, wasGrounded) {
                 }
             } 
             // Collision par le bas (le joueur se cogne la tête)
-            else if (player.vy < 0 && (player.y - player.vy) >= (plat.y + plat.height - Math.abs(plat.vy))) {
+            else if (player.vy < 0 && (player.y - player.vy) >= (plat.y + plat.height - (plat.moving ? Math.abs(plat.vy) : 0))) {
                 player.y = plat.y + plat.height;
                 player.vy = 0;
             }

@@ -35,7 +35,7 @@ const levels = [
             { x: 1000, y: 350, width: 100, height: 20, type: 'platform', moving: true, vx: 2, vy: 0, rangeX: 100, rangeY: 0, startX: 1000, startY: 350 },
             { x: 1200, y: 450, width: 100, height: 20, type: 'platform' },
             { x: 1450, y: 350, width: 150, height: 20, type: 'platform' },
-            { x: 1650, y: 250, width: 100, height: 20, type: 'platform', moving: true, rangeY: 150, speed: 0.02 }
+            { x: 1650, y: 250, width: 100, height: 20, type: 'platform', moving: true, vx: 0, vy: 1, rangeX: 0, rangeY: 150, startX: 1650, startY: 250, speed: 0.02 }
         ],
         enemies: [
             { x: 200, y: 520, width: 30, height: 30, color: '#FF4444', vx: 1.5, range: 80, startX: 200 },
