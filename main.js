@@ -11,10 +11,8 @@ let levelTimer = 0;
 let lastTimerUpdate = 0;
 const camera = { x: 0, y: 0 };
 const goal = { x: 0, y: 0, width: 0, height: 0, color: '#FF00FF', reached: false };
-const keys = {};
 
-window.addEventListener('keydown', e => keys[e.code] = true);
-window.addEventListener('keyup', e => keys[e.code] = false);
+initInputs();
 
 function initLevel(index) {
     const level = levels[index % levels.length];
@@ -53,21 +51,14 @@ function update() {
         stats.lastTime = now;
     }
 
-    if (gameState === 'START') {
-        if (keys['Space'] || keys['Enter']) {
-            gameState = 'PLAYING';
-            startMusic();
-        }
-        return;
+    // Game State Transitions (Modular)
+    const nextState = handleGameStateTransitions(gameState, currentLevelIndex, initLevel, startMusic);
+    if (nextState !== gameState) {
+        gameState = nextState;
+        lastTimerUpdate = performance.now();
     }
 
-    if (gameState === 'GAMEOVER') {
-        if (keys['Space'] || keys['Enter']) {
-            initLevel(currentLevelIndex);
-            gameState = 'PLAYING';
-        }
-        return;
-    }
+    if (gameState !== 'PLAYING') return;
 
     if (!player.alive || goal.reached) {
         updateParticles();
