@@ -76,23 +76,7 @@ function update() {
     }
 
     let wasGrounded = player.grounded;
-    if (keys['ArrowLeft']) player.vx = -player.speed;
-    else if (keys['ArrowRight']) player.vx = player.speed;
-    else {
-        player.vx *= 0.8; // friction
-        if (Math.abs(player.vx) < 0.1) player.vx = 0;
-    }
-
-    if (keys['Space'] && player.grounded && !player.jumpPressed) {
-        player.vy = player.jumpStrength;
-        player.grounded = false;
-        player.jumpPressed = true;
-        createParticles(player.x + player.width/2, player.y + player.height, '#FFF', 8);
-        sfx.jump();
-    }
-    if (!keys['Space']) player.jumpPressed = false;
-
-    if (player.invincible > 0) player.invincible--;
+    handlePlayerInput(player, sfx, createParticles);
 
     updatePhysics(player, platforms, wasGrounded);
     updateEnemies(player, enemies, particles, sfx, killPlayer);
@@ -134,7 +118,7 @@ function loop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawBackground(ctx, canvas, camera, clouds, mountains, shakeX, shakeY);
     drawGameObjects(ctx, camera, platforms, decorations, enemies, coins, items, goal, player, shakeX, shakeY);
-    drawUI(ctx, canvas, player, currentLevelIndex, levelTimer, stats, goal, camera, gameState, leaderboard);
+    drawUI(ctx, canvas, player, currentLevelIndex, levelTimer, stats, goal, camera, gameState, leaderboard, colors);
     requestAnimationFrame(loop);
 }
 
