@@ -19,3 +19,13 @@ L'architecture repose sur un orchestrateur central (`main.js`) qui délègue cha
 2. `ui.js` capture les inputs.
 3. `physics.js` calcule les nouvelles positions.
 4. `render.js` dessine l'état final.
+
+## 🎯 Context Mapping (Périmètres Experts)
+*   **expert-engine** : `physics.js`, `player.js`
+*   **expert-vfx** : `render.js`
+*   **expert-audio** : `audio.js`
+*   **expert-logic** : `entities.js`, `levels.js`
+*   **expert-ui** : `ui.js`, `storage.js`
+*   **expert-chronicle** : `ARCHITECTURE.md`, `PROGRESSION.md`, `PROTOCOL.md`
+*   **expert-qa** : (Tout le projet en lecture seule pour tests)
+*   **expert-creative** : `levels.js`
