@@ -39,41 +39,8 @@ function initLevel(index) {
     levelTimer = level.timeLimit;
     lastTimerUpdate = performance.now();
 
-    // Re-init visual elements
-    clouds.length = 0;
-    for (let i = 0; i < 10; i++) {
-        clouds.push({
-            x: Math.random() * level.width,
-            y: Math.random() * (canvas.height / 2),
-            speed: 0.2 + Math.random() * 0.5,
-            size: 30 + Math.random() * 50
-        });
-    }
-
-    mountains.length = 0;
-    for (let i = 0; i < 5; i++) {
-        mountains.push({
-            x: i * 400,
-            width: 600 + Math.random() * 400,
-            height: 100 + Math.random() * 200,
-            color: `rgba(100, 130, 150, ${0.3 + Math.random() * 0.2})`
-        });
-    }
-
-    decorations.length = 0;
-    level.platforms.forEach(plat => {
-        const count = Math.floor(plat.width / 100);
-        for (let i = 0; i < count; i++) {
-            if (Math.random() > 0.4) {
-                decorations.push({
-                    x: plat.x + Math.random() * (plat.width - 20),
-                    y: plat.y,
-                    type: Math.random() > 0.5 ? 'tree' : 'bush',
-                    size: 20 + Math.random() * 20
-                });
-            }
-        }
-    });
+    // Init visual elements (Modular)
+    initVisuals(level, canvas.height);
 }
 
 function update() {
@@ -159,11 +126,8 @@ function update() {
 
     if (player.shakeTime > 0) player.shakeTime--;
 
-    // Update Clouds
-    for (const cloud of clouds) {
-        cloud.x -= cloud.speed;
-        if (cloud.x + cloud.size < 0) cloud.x = levels[currentLevelIndex].width;
-    }
+    // Update Visuals (Modular)
+    updateVisuals(levels[currentLevelIndex].width);
 
     camera.x += (player.x - canvas.width / 2 - camera.x) * 0.1;
     if (camera.x < 0) camera.x = 0;

@@ -40,6 +40,54 @@ function updateParticles() {
     }
 }
 
+function initVisuals(level, canvasHeight) {
+    // Init Clouds
+    clouds.length = 0;
+    for (let i = 0; i < 10; i++) {
+        clouds.push({
+            x: Math.random() * level.width,
+            y: Math.random() * (canvasHeight / 2),
+            speed: 0.2 + Math.random() * 0.5,
+            size: 30 + Math.random() * 50
+        });
+    }
+
+    // Init Mountains
+    mountains.length = 0;
+    for (let i = 0; i < 5; i++) {
+        mountains.push({
+            x: i * 400,
+            width: 600 + Math.random() * 400,
+            height: 100 + Math.random() * 200,
+            color: `rgba(100, 130, 150, ${0.3 + Math.random() * 0.2})`
+        });
+    }
+
+    // Init Decorations
+    decorations.length = 0;
+    level.platforms.forEach(plat => {
+        const count = Math.floor(plat.width / 100);
+        for (let i = 0; i < count; i++) {
+            if (Math.random() > 0.4) {
+                decorations.push({
+                    x: plat.x + Math.random() * (plat.width - 20),
+                    y: plat.y,
+                    type: Math.random() > 0.5 ? 'tree' : 'bush',
+                    size: 20 + Math.random() * 20
+                });
+            }
+        }
+    });
+}
+
+function updateVisuals(levelWidth) {
+    // Update Clouds
+    for (const cloud of clouds) {
+        cloud.x -= cloud.speed;
+        if (cloud.x + cloud.size < 0) cloud.x = levelWidth;
+    }
+}
+
 function drawBackground(ctx, canvas, camera, clouds, mountains, shakeX = 0, shakeY = 0) {
     ctx.fillStyle = colors.sky;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
